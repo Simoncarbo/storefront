@@ -4,8 +4,11 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "*"
-django-debug-toolbar = "*"
+django = "==5.1"
+django-debug-toolbar = "==4.4.6"
+asgiref = "==3.8.1"
+sqlparse = "==0.5.1"
+tzdata = "==2024.1"
 
 [dev-packages]
 

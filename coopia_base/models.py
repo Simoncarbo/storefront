@@ -3,8 +3,12 @@ import django.contrib.auth as auth
 
 # Create your models here.
 class Community(models.Model):
+    # use django Groups? https://docs.djangoproject.com/en/5.1/ref/contrib/auth/
     description_text = models.CharField(max_length=500)
     creation_date = models.DateTimeField()
+
+    def __str__(self):
+        return self.description_text
 
 
 class User(auth.models.User):
