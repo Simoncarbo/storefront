@@ -2,6 +2,14 @@ from django.db import models
 import django.contrib.auth as auth
 
 # Create your models here.
+
+class Message(models.Model):
+    content = models.TextField(max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.content[:50]  # Preview the first 50 characters
+    
 class Community(models.Model):
     # use django Groups? https://docs.djangoproject.com/en/5.1/ref/contrib/auth/
     description_text = models.CharField(max_length=500)

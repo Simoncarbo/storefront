@@ -39,7 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'playground',
     'coopia_base.apps.CoopiaBaseConfig',
-    'debug_toolbar'
+    'debug_toolbar',
+    'tailwind',
+    'theme',
+    #'django_browser_reload' # needs to be installed, for automatic browser refresh
 ]
 
 MIDDLEWARE = [
@@ -126,9 +129,12 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# added for django_debug_toolbar
+# added for django_debug_toolbar (et django_tailwind)
 INTERNAL_IPS = [
     # ...
     "127.0.0.1",
     # ...
 ]
+
+TAILWIND_APP_NAME = "theme"
+NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"

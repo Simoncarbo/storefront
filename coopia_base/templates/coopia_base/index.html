@@ -1,0 +1,48 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>My Test Page</title>
+    {% tailwind_css %}
+    <script src="https://unpkg.com/htmx.org"></script>
+  </head>
+  <body class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+    <!-- Common Container -->
+    <div class="w-full max-w-2xl px-4 space-y-6">
+      <!-- Messages Container -->
+      <div id="messages-container" class="space-y-4">
+        {% for message in messages %}
+        <div class="p-4 border border-gray-300 rounded-lg shadow-md bg-white text-gray-800 break-words text-center">
+          {{ message }}
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Message Input Form -->
+      <form 
+        action="{% url 'add_message' %}" 
+        method="POST" 
+        hx-post="{% url 'add_message' %}" 
+        hx-target="#messages-container" 
+        hx-swap="innerHTML" 
+        class="w-full">
+        {% csrf_token %}
+        <div class="flex flex-col space-y-4">
+          <textarea 
+            name="message" 
+            rows="3" 
+            class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" 
+            placeholder="Write your message (up to 500 characters)..." 
+            maxlength="500" 
+            required></textarea>
+          <button 
+            type="submit" 
+            class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded-lg shadow-md">
+            Add Message
+          </button>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>
