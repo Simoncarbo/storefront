@@ -1,0 +1,16 @@
+TODO:
+réenvoyer aléatoirement si message déjà présent dans un input text
+ne plus utiliser les excluded_participants mais communiquer avec l'idée le nombre de fois qu'elle a déjà été réenvoyée car déjà présente 
+	Ou bien communiquer les deux!
+chez le participant. gérer le max_trials dans CoopiaProcess
+ajout nouvelle idée en dessous de celle modifiée
+pouvoir ecrire meme quand plus de promotion dispo
+indicateur nombre de promotion par idée est clické
+
+
+
+J'ai avancé sur le renvoyage automatique.
+Utilisation de excluded_participants
+retirer les excluded_participants AVANT le random choice
+si excluded_participants dépasse un certain nombre, on arrête d'essayer
+Ca a l'air de fonctionner :)

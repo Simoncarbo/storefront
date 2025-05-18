@@ -1,0 +1,3 @@
+ajout nouvelle idée en dessous de celle modifiée
+pouvoir ecrire meme quand plus de promotion dispo
+indicateur nombre de promotion par idée est clické

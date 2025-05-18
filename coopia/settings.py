@@ -25,20 +25,21 @@ SECRET_KEY = 'django-insecure-*&-9e-&=u9zy#od-qpz#iku-5)7vh-95w6r=xxntspii%xbl=-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = ["192.168.0.213"]
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'playground',
     'coopia_base.apps.CoopiaBaseConfig',
+    'coopia_base_websockets.apps.CoopiaBaseWebsocketsConfig',
     'debug_toolbar',
     'tailwind',
     'theme',
@@ -74,7 +75,14 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'coopia.wsgi.application'
+#WSGI_APPLICATION = 'coopia.wsgi.application'
+ASGI_APPLICATION = "coopia.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "coopia_base_websockets.channellayers.ChannelLayerForCoopiaProcess"
+    }
+}
 
 
 # Database

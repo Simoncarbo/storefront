@@ -1,0 +1,43 @@
+j'avais eu l'idée en javascript de faire une classe/fonction pour l'ajout d'input forms
+
+TODO précédent:
+pouvoir ajouter un nouvel input manuellement
+représenter le nombre de fois qu'un bonton a été clické
+Ensuite: réenvoyer aléatoirement si message déjà présent dans un input text
+
+En gros: focus sur le frontend.
+
+En backend?
+Il faudra implem le processus de vote et de sélection aléatoire d'un vote
+
+_____________
+
+http://127.0.0.1:8000/coopiabasewebsockets/waw/
+
+Bug: PArfois les promote idea ne fonctionne pas
+c'était parce que un promote idea n'avait pas trouvé de channel random -> LookupError -> déconnexion websocket
+Du coup j'ai retiré le raise LookupError
+-> le problème a l'air réglé. Faudra peut-être retourner trials pour logger a quel point les random_send fonctionnent rapidement
+
+en utilisant chatgpt, j'ajoute une classe pour les input submit etc.
+Chat GPT me propose plein de choses (e.g. use form instead of input, count number of submits, disable submission after max count etc.)
+-> ca avance vite!!! :oo
+
+J'essaie d'ajouter la sélection d'une idée pour le vote.
+D'abord Checkboxes, puis Radio buttons pour que max une seule idée puisse etre utilisée. Malheureusement malgré que les radio buttons ait le même nom il n'y  pas déselection automatique quand on sélectionne une autre idée :(
+solution: les radio buttons étaient dans différents forms. Il fallait les retirer des forms contenant les inputs et submit buttons pour qu'ils fonctionnent ensemble.
+
+Waouw, j'ai le sentiment qu'il y a eu bcp d'avancées. Ca me procure pas mal d'émotions. Je recommence à 'imaginer les premier tests. Mais Simon, cesse d'imaginer. Réalise!
+
+Ajoute fonctionalité pour qu'un nouvel input s'ajoute dès que (1) l'utilisateur change un input et (2) il n'y a plus d'inputs vide
+
+Ajoute un radio button "Attendre plus d'idées" qui est sélectionné automatiquement
+
+Faire en sorte que des nouveaux inputs sont directement grisés quand l'utilisateur ne peut plus propager d'idées.
+
+ajout de tailwind-css -> gros changement dans le design
+
+
+TODO left:
+réenvoyer aléatoirement si message déjà présent dans un input text
+ne plus utiliser les excluded_participants mais communiquer avec l'idée le nombre de fois qu'elle a déjà été réenvoyée car déjà présente chez le participant. gérer le max_trials dans CoopiaProcess

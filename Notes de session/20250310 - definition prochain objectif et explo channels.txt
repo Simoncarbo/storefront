@@ -1,0 +1,25 @@
+Objectif:
+ouvrir plusieurs tab chrome connectés a la meme chatroom.
+Avoir deux zones de text: 
+La première qui est commune a tous les tabs et renvoie toutes les 30secs un message tiré au sort
+La deuxième qui est personnelle et qui recoit en direct des messages envoyés par d'autres. Lorsqu'un message est envoyé, un seuel autre tab le recevra et ce tab est tiré au sort.
+
+la data envoyés du serveur au client par les websockets devra donc, en plus du "message", contenir un "type" qui vaudra "common" ou "personal en fonction de la zone de text qui doit la contenir
+
+comment gérer l'aspect channel?
+
+
+Channels also comes packaged with an in-memory Channels Layer. This layer can be helpful in Testing or for local-development purposes
+
+
+
+Groups is a broadcast system that:
+
+-Allows you to add and remove channel names from named groups, and send to those named groups.
+
+-Provides group expiry for clean-up of connections whose disconnect handler didn’t get to run (e.g. power failure)
+
+They do not allow you to enumerate or list the channels in a group; it’s a pure broadcast system. If you need more precise control or need to know who is connected, you should build your own system or use a suitable third-party one.
+
+
+-> reprendre InMemoryChannelLayer et en plus de group_send, ecrire une fonction random_send (tester le group_send en premier lieu)

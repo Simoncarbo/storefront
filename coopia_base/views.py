@@ -14,6 +14,10 @@ def add_message(request):
     if request.method == 'POST':
         message_content = request.POST.get('message')
         if message_content:
-            Message.objects.create(content=message_content)
-        return redirect('index')
+            new_message = Message.objects.create(content=message_content)
+
+            # Render only the new message
+            return render(request, 'coopia_base/partials/single_message.html', {'message': new_message})
+        else:
+            return redirect('index')
         

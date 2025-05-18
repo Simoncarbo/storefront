@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Chat Rooms</title>
+</head>
+<body>
+    What chat room would you like to enter?<br>
+    <input id="room-name-input" type="text" size="100"><br>
+    <input id="room-name-submit" type="button" value="Enter">
+
+    <script>
+        // Focus the input field when the page loads
+        document.querySelector('#room-name-input').focus();
+
+        // Add an event listener to the input field to detect keyup events
+        document.querySelector('#room-name-input').onkeyup = function(e) {
+            // If the Enter key is pressed
+            if (e.key === 'Enter') {
+                // Trigger a click event on the submit button
+                document.querySelector('#room-name-submit').click();
+            }
+        };
+
+        // Add an event listener to the submit button to detect click events
+        document.querySelector('#room-name-submit').onclick = function(e) {
+            // Get the value of the input field
+            var roomName = document.querySelector('#room-name-input').value;
+            // Redirect to the chat room URL with the entered room name
+            window.location.pathname = '/coopiabasewebsockets/' + roomName + '/';
+        };
+    </script>
+</body>
+</html>

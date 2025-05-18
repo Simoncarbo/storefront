@@ -1,0 +1,36 @@
+Okay on avance: tests de inmemorychannels
+
+donc on a bien notre chat room habituel. Maintenant on veut du group send. Je pourrais reprendre le tuto django-channels en fait!
+
+Je me lance dans InMemoryChannelLayer sur base du tutoriel channels et la documentation Channel Layers.
+
+wow, le group send marche :)
+pas compris le type=chat.message
+
+Je remarque aussi que ouvrir un autre tab ne récupère pas l'historique. Faire un refresh fait perdre l'historique.
+
+Je test de créer un channel layer custom. Mais pas évident car default channel layer spécifié dans settings.py
+
+woupwoup j'ai réussi a implémenter un random send!! :D
+
+Par contre c'est implémenté au niveau du consumer et pas au niveau du channel (pas au meme niveau que group_send, donc). Pas top mais alor faut régler ce problème de Backend layer dans les settings
+
+L'aspect settings et default channel layer est géré dans
+https://github.com/django/channels/blob/main/channels/layers.py#L387
+ChannelLayerManager
+_make_backend
+backend_module = self.configs[name]["BACKEND"]
+backend_class = import_string(backend_module)
+
+En fait il faut qd meme que je règle ce problème pour l'aspect group_send automatique? en fait ca déjà c'est un truc qui tourne en permanence -> besoin de async
+D'autre part il faut que ca tourne au niveau de l'instance channel, et pas au niveau d'un consumer car sinon ca sera répété plein de fois.
+
+Je pourrais parler du problème à Papa pour voir si il a une solution simple
+
+Finalement le probleme a été résolu. Je devais faire une bete erreur qqpart... Top!
+
+Du coup j'implémente random_send dans le custom channel layer et ca marche :)
+
+Et puis j'implemente un code qui envoie automatiquement à tout le monde un des message et ca marche :)
+Objectif accompli!!!
+Juste que la je fais l'hypothèse qu'il y a un seul groupe dans le channel layer (car une seule liste self.messages pour tous les groupes) -> documentation des groupes au sein de channels à checker

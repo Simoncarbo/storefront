@@ -11,7 +11,7 @@
     <!-- Common Container -->
     <div class="w-full max-w-2xl px-4 space-y-6">
       <!-- Messages Container -->
-      <div id="messages-container" class="space-y-4">
+      <div id="messages-container" class="space-y-4 w-full max-w-2xl px-4">
         {% for message in messages %}
         <div class="p-4 border border-gray-300 rounded-lg shadow-md bg-white text-gray-800 break-words text-center">
           {{ message }}
@@ -21,12 +21,13 @@
 
       <!-- Message Input Form -->
       <form 
+        id="add_message_form"
         action="{% url 'add_message' %}" 
         method="POST" 
         hx-post="{% url 'add_message' %}" 
         hx-target="#messages-container" 
-        hx-swap="innerHTML" 
-        class="w-full">
+        hx-swap="beforeend"
+        hx-on="htmx:afterRequest: this.reset()">
         {% csrf_token %}
         <div class="flex flex-col space-y-4">
           <textarea 
@@ -44,5 +45,11 @@
         </div>
       </form>
     </div>
+    <script>
+      document.addEventListener("htmx:afterSwap", (event) => {
+        if (event.detail.target.id === "messages-container") {
+          document.getElementById("add_message_form").lastElementChild.scrollIntoView({ behavior: "smooth" });
+        }})
+    </script>
   </body>
 </html>

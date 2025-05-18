@@ -1,0 +1,14 @@
+Il faut commencer par relier CoopiaProcess et ChannelLayer
+-> via add_group?
+DONE :) j'ai pas fait via add_group finalement.
+Attention que pour le moment je fais l'hypothèse one-to-one mapping entre group et coopia_process
+
+then implement function such that idea is not sent to the person who sent it
+DONE :)
+A terme plus malin serait de voir au niveau frontend si le participant a déjà recu l'idée et en fonction renvoyer vers quelqu'un d'autre
+
+Nouvel objectif: représenter les personal_messages comme des input text DONE
+
+mtn: pouvoir ajouter un nouvel input manuellement
+représenter le nombre de fois qu'un bonton a été clické
+Ensuite: réenvoyer aléatoirement si message déjà présent dans un input text

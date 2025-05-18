@@ -20,6 +20,6 @@ from debug_toolbar.toolbar import debug_toolbar_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('playground/',include('playground.urls')), # all requests starting with 'playground/' should be handled by this app
-    path('coopiabase/',include('coopia_base.urls'))
+    path('coopiabase/',include('coopia_base.urls')), # all requests starting with 'coopia/' should be handled by this app
+    path('coopiabasewebsockets/',include('coopia_base_websockets.urls')) 
 ] + debug_toolbar_urls()

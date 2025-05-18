@@ -1,0 +1,12 @@
+Je me lance mais je ne sais plus trop ce qu'il faut faire. Ou en étais-je? Quel est le context? Peut-être y-a-t-il eu trop de changements dernièrement?
+
+Je pourrais déjà commencer par revisualiser le site pour voir son état actuel.
+
+Je me souviens que demander l'accès à une chatroom d'un certain nom la crée automatiquement. Comme il n'y a pas de mémoire ou de database, c'est sytématiquement des nouvelles chatrooms. Il ne faut pas forcément passer par la homepage pour créer une nouvelle chatroom. Il suffit de taper le lien avec un nouveau nom à la fin.
+
+tentative d'utiliser htmx pour le frontend
+je me sens vite perdu, pas très agréable.
+
+J'abandonne htmx. Pas réussi a faire fonctionner le code.
+assistant IA semblait perdu également.
+Code était plus court, mais pas forcément plus compréhensible.
