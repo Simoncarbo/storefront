@@ -163,19 +163,6 @@
                     }
                 });
 
-                // Get the current last line of chat-log-common
-                this.previewLine = document.createElement('div');
-                this.previewLine.className = "text-sm text-gray-500 font-mono whitespace-pre-wrap bg-gray-100 rounded-t-lg px-2 py-1 border border-b-0 border-gray-300";
-                this.previewLine.style.cursor = "default"; // Just for user clarity
-                this.previewLine.textContent = ChatInput.getLastLogLine();
-
-                // Wrap preview + input inside a div to simulate a unified textarea feel
-                this.inputWrapper = document.createElement('div');
-                this.inputWrapper.className = "flex-1 flex flex-col";
-
-                this.inputWrapper.appendChild(this.previewLine);
-                this.inputWrapper.appendChild(this.input);
-
                 // Create a radio button for selecting the input
                 this.radio = document.createElement('input');
                 this.radio.type = 'radio';
@@ -204,12 +191,9 @@
                 this.countBox.textContent = '0';
 
                 // Append the input, button, and count box to the form
-                this.form.appendChild(this.inputWrapper);
+                this.form.appendChild(this.input);
                 this.form.appendChild(this.button);
                 this.form.appendChild(this.countBox);
-
-                // Replace this.form.appendChild(this.input); with:
-                this.form.insertBefore(this.inputWrapper, this.button);
 
                 // Wrap radio and form in a flex container
                 this.wrapper = document.createElement('div');
