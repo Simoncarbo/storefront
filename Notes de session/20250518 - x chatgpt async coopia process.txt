@@ -1,0 +1,19 @@
+ChatGPT prompt:
+the following code implements a collaborative writing process. The process is split in successive rounds that have a fixed duration. At the end of each round, a piece of text is appended to the resulting text. The code in this state doesn't work because of async threads. How to correct it and why?
+
+Response:
+Django Channels is asynchronous. The Django server handles many connections concurrently using asynchronous I/O. Blocking calls like time.sleep() or long-running synchronous loops (like while self.is_running) block the event loop, making the app unresponsive.
+
+So the core issue is: your process blocks the event loop, preventing other WebSocket messages from being sent/received in real-time.
+
+OK, ça marche :)
+
+Next?
+Communicate info at each new round
+-> duration (for countdown)
+-> nb promotions
+
+C'est bon!
+Et j'ai aussi immplem le reset des inputs lorsqu'un nouveau round commence.
+
+Next: countdown

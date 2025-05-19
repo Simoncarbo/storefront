@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>CoopiaProcess Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center p-6">
+    <div class="w-full max-w-xl bg-white shadow-md rounded-lg p-6">
+        <h1 class="text-2xl font-bold mb-4">Admin: {{ room_name }}</h1>
+        <form id="admin-form" class="space-y-4">
+            <div>
+                <label class="block font-semibold mb-1">Task Description:</label>
+                <textarea id="task_description" name="task_description" rows="3" class="border rounded p-2 w-full"></textarea>
+            </div>
+            <div>
+                <label class="block font-semibold mb-1">Next Round Duration (seconds):</label>
+                <input type="number" id="next_round_duration" name="next_round_duration" value="25" min="1" class="border rounded p-2 w-full">
+            </div>
+            <div>
+                <label class="block font-semibold mb-1">Next Round Nb Idea Promotions:</label>
+                <input type="number" id="next_round_nb_idea_promotions" name="next_round_nb_idea_promotions" value="4" min="1" class="border rounded p-2 w-full">
+            </div>
+            <div class="flex space-x-2">
+                <button type="button" id="start-btn" class="px-4 py-2 bg-green-500 text-white rounded">Start</button>
+                <button type="button" id="pause-btn" class="px-4 py-2 bg-yellow-500 text-white rounded">Pause</button>
+                <button type="button" id="resume-btn" class="px-4 py-2 bg-blue-500 text-white rounded">Resume</button>
+                <button type="button" id="finish-btn" class="px-4 py-2 bg-red-500 text-white rounded">Finish</button>
+                <button type="button" id="next-round-btn" class="px-4 py-2 bg-purple-500 text-white rounded">Set Next Round Parameters</button>
+            </div>
+        </form>
+        <div id="status" class="mt-4 text-gray-700"></div>
+    </div>
+    <script>
+        const roomName = "{{ room_name }}";
+        function sendAdminAction(action) {
+            const duration = document.getElementById('next_round_duration').value;
+            const nbPromotions = document.getElementById('next_round_nb_idea_promotions').value;
+            const taskDescription = document.getElementById('task_description').value;
+            
+            // Sends the POST request to a room-specific endpoint.
+            fetch(`/coopiabasewebsockets/${roomName}/admin_action/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": (document.cookie.match(/csrftoken=([^;]+)/)||[])[1] || "",
+                },
+                body: JSON.stringify({
+                    action: action,
+                    next_round_duration: duration,
+                    next_round_nb_idea_promotions: nbPromotions,
+                    task_description: taskDescription,
+                })
+            })
+            .then(r => r.json()) // Parses the JSON response.
+            .then(data => {
+                document.getElementById('status').textContent = data.status || data.error || "Done";
+            })
+            .catch(e => {
+                document.getElementById('status').textContent = "Error: " + e;
+            });
+        }
+        // Each button triggers sendAdminAction() with a different action string
+        // DRY principle: use a single function to handle all button clicks
+        // and pass the action as an argument
+        document.getElementById('start-btn').onclick = () => sendAdminAction('start');
+        document.getElementById('pause-btn').onclick = () => sendAdminAction('pause');
+        document.getElementById('resume-btn').onclick = () => sendAdminAction('resume');
+        document.getElementById('finish-btn').onclick = () => sendAdminAction('finish');
+        document.getElementById('next-round-btn').onclick = () => sendAdminAction('next_round');
+    </script>
+</body>
+</html>

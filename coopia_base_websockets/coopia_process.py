@@ -1,8 +1,13 @@
 import datetime
+import time
+import asyncio
 import random
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import pandas as pd
+import uuid
+
+from .models import CoopiaProcessInfo
 
 class CoopiaProcess(object):
     """
@@ -18,7 +23,7 @@ class CoopiaProcess(object):
         """
 
         self.group_name = group_name  # Name of the group
-        self.process_id = group_name+str(datetime.datetime.now().timestamp())  # Unique process ID
+        self.process_id = group_name+str(datetime.datetime.now())  # Unique process ID
         # for the moment, we assume a one-to-one mapping between group and coopia process
 
 
@@ -35,19 +40,20 @@ class CoopiaProcess(object):
         self.current_round_index = None  # Current round number
         self.next_round_duration = None
         self.next_round_nb_idea_promotions = None
-        self.rounds = pd.Dataframe(columns = ['process_id','round_index','round_start_time', 'round_end_time','nb_idea_promotions', 'round_duration', 'round_result'])
+        self.rounds = pd.DataFrame(columns = ['process_id','round_index','round_start_time', 'round_end_time','nb_idea_promotions', 'round_duration', 'round_result'])
 
         self.is_running = False  # Flag to indicate if the process is running
         self.is_paused = False  # Flag to indicate if the process is paused
         self.is_finished = False  # Flag to indicate if the process is finished
 
         self.result =''  # current result of the process
+        self.task_description = None
 
 
-        self.start()
+        # self.start()
 
 
-    def start(self, next_round_duration = 30, next_round_nb_idea_promotions = 4):
+    def start(self, task_description='', next_round_duration = 25, next_round_nb_idea_promotions = 4):
         """
         Start the CoopiaProcess.
         """
@@ -59,26 +65,36 @@ class CoopiaProcess(object):
         self.start_time = datetime.datetime.now()
         self.max_end_time = self.start_time + datetime.timedelta(seconds=self.max_duration)
 
+        self.task_description = task_description
+
         self.next_round_duration = next_round_duration
         self.next_round_nb_idea_promotions = next_round_nb_idea_promotions
 
-        self.run_process()
+        self.current_round_index = 0
+
+        # asyncio.create_task(self.run_process())
+        async_to_sync(self.run_process)()
     
     def pause(self):
         """
         Pause the CoopiaProcess.
         """
-        self.is_running = False
+        self.is_running = True  # Keep running, but pause
         self.is_paused = True
         self.is_finished = False
 
     def resume(self):
         """
         Resume the CoopiaProcess.
+        Starts the next round if paused.
         """
+        was_paused = self.is_paused
         self.is_running = True
         self.is_paused = False
         self.is_finished = False
+        # # If process was paused and run_process is not running, restart it
+        # if was_paused and not getattr(self, "_run_process_task", None):
+        #     self._run_process_task = async_to_sync(self.run_process)()
     
     def finish(self):
         """
@@ -87,6 +103,29 @@ class CoopiaProcess(object):
         self.is_running = False
         self.is_paused = False
         self.is_finished = True
+
+        self.end_time = datetime.datetime.now()
+
+        # Save process info to the database
+        try:
+            CoopiaProcessInfo.objects.create(
+                process_id=self.process_id,
+                group_name=self.group_name,
+                task_description=self.task_description,
+                result=self.result,
+                start_time=self.start_time,
+                end_time=self.end_time,
+                current_round_index=self.current_round_index
+            )
+        except Exception as e:
+            print(f"Error saving process info: {e}")
+
+    def set_next_round_parameters(self, next_round_duration: int, next_round_nb_idea_promotions: int):
+        """
+        Set the parameters for the next round.
+        """
+        self.next_round_duration = next_round_duration
+        self.next_round_nb_idea_promotions = next_round_nb_idea_promotions
 
     def promote_idea(self, excluded_participants, idea):
         """
@@ -103,32 +142,82 @@ class CoopiaProcess(object):
                                                     "excluded_participants":excluded_participants}
                 )
 
-    def broadcast_countdown(self):
+    async def broadcast_countdown(self,end_time = None, send_every_x_seconds = 5):
         """
-        Broadcast the countdown to all participants.
-        """
-        # This method can be extended to add more functionality as needed
-        pass
+        NOT USED FOR THE MOMENT
 
-    def gather_voting_from_random_participant(self):
+        Broadcast a countdown to all participants every second until end_time.
+        """
+        channel_layer = get_channel_layer()
+
+        while True:
+            now = datetime.datetime.now()
+            seconds_left = int((end_time - now).total_seconds())
+
+            if seconds_left <= 0:
+                break
+
+            await channel_layer.group_send(
+                self.group_name,
+                {
+                    "type": "send.countdown",
+                    "seconds_left": seconds_left,
+                }
+            )
+
+            await asyncio.sleep(send_every_x_seconds)
+
+    async def gather_voting_from_random_participant(self):
         """
         Gather voting from one randomly selected participant.
         """
-        # This method can be extended to add more functionality as needed
-        pass
+        channel_layer = get_channel_layer()
+        request_id = str(uuid.uuid4())
+        self._voting_futures = getattr(self, "_voting_futures", {})
+        future = asyncio.get_event_loop().create_future()
+        self._voting_futures[request_id] = future
 
-    def broadcast_voting_result(self, proposal):
-        """
-        Broadcast a proposal to all groups.
-        """
-        # This method can be extended to add more functionality as needed
-        pass
+        # Send request to a random participant
+        await channel_layer.random_send(
+            self.group_name,
+            excluded_participants=[],
+            message={
+                "type": "send.request_vote",
+                "request_id": request_id,
+            }
+        )
 
-    def run_process(self):
+        try:
+            # Wait for the participant's response (with timeout)
+            result = await asyncio.wait_for(future, timeout=15)
+        except asyncio.TimeoutError:
+            result = None
+        finally:
+            del self._voting_futures[request_id]
+        return result
+
+    def receive_vote(self, request_id, value):
+        """
+        Called by the consumer when a participant responds to a voting request.
+        """
+        if hasattr(self, "_voting_futures") and request_id in self._voting_futures:
+            future = self._voting_futures[request_id]
+            if not future.done():
+                future.set_result(value)
+
+    async def broadcast_voting_result(self, result):
+        """
+        Broadcast a result to all participants.
+        """
+        channel_layer = get_channel_layer()
+        await channel_layer.group_send(
+            self.group_name,{"type": "send.result", "message": result }
+            )
+
+    async def run_process(self):
         """
         Periodically broadcast a proposal to all participants.
         """
-        self.current_round_index = 0
         while self.is_running:
             # Check if the process has reached its maximum duration
             if (datetime.datetime.now() >= self.max_end_time) or (self.current_round_index >= self.max_rounds):
@@ -136,15 +225,46 @@ class CoopiaProcess(object):
                 break
 
             # Run a round of the CoopiaProcess
-            self.run_round()
+            await self.run_round()
             self.current_round_index += 1
 
-    def run_round(self):
+    async def run_round(self):
         """
         Run a single round of the CoopiaProcess.
         """
-        self.round_start_time = datetime.datetime.now()
+        round_start_time = datetime.datetime.now()
+        round_end_time = round_start_time + datetime.timedelta(seconds=self.next_round_duration)
         
+        # broadcast round duration and countdown to participants
+        # asyncio.create_task(self.broadcast_countdown(round_end_time))
+
+        message = {
+                    "type": "send.roundinfo",
+                    "nb_idea_promotions": self.next_round_nb_idea_promotions,
+                    "round_duration": self.next_round_duration,
+                }
+        if self.current_round_index==0:
+            message["task_description"] = self.task_description
+
+        # broadcast round info to participants
+        channel_layer = get_channel_layer()
+        await channel_layer.group_send(
+                self.group_name, message               
+            )
+        
+        # Wait for the round to finish
+        await asyncio.sleep(self.next_round_duration)
+
+        # --- PAUSE HANDLING ---
+        while self.is_paused:
+            await asyncio.sleep(0.5)
+            if not self.is_running:
+                return  # If finished while paused, exit
+
+        result = await self.gather_voting_from_random_participant()
+        self.result = self.result + result
+        await self.broadcast_voting_result(result)
+
         
 
-        self.round_end_time = datetime.datetime.now()
+        

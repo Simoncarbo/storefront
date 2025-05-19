@@ -5,17 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Room</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .blinking-caret {
+            display: inline-block;
+            width: 1px;
+            background-color: black;
+            animation: blink 1s step-start infinite;
+            height: 1em;
+            vertical-align: bottom;
+            margin-left: 2px;
+        }
+
+        @keyframes blink {
+            50% {
+            opacity: 0;
+            }
+        }
+    </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center p-6">
     <div class="w-full max-w-4xl bg-white shadow-md rounded-lg p-6">
-        <h1 class="text-2xl font-bold text-gray-800 mb-4">Chat Room</h1>
-        
-        <textarea id="chat-log-common" cols="100" rows="10" readonly 
-            class="w-full p-4 border border-gray-300 rounded-lg mb-4 bg-gray-50 resize-none"></textarea>
-        
-        <div id="global-submission-remaining" 
-            class="mb-4 text-lg font-semibold text-gray-700">
-            <!-- Remaining submissions will be shown here -->
+        <!-- Task Description -->
+        <div id="task-description"
+            class="w-full mb-4 px-2 py-1 text-gray-700 text-base font-serif leading-relaxed text-left"
+            style="word-break:break-word; white-space:pre-line; min-height:2em;">
+        </div>
+
+        <div id="chat-log-common" 
+            class="w-full p-2 border border-gray-300 rounded-lg mb-4 bg-gray-50 resize-none whitespace-pre-wrap font-mono h-60 overflow-y-auto leading-snug text-left text-indent-0">
+        </div>
+
+        <div class="flex justify-between items-center mb-4 text-lg font-semibold text-gray-700">
+            <div id="round-countdown" 
+                class="mb-4 text-lg font-semibold text-gray-700 flex items-center">
+                <!-- Countdown will be shown here -->
+            </div>
+
+            <div id="global-submission-remaining" 
+                class="mb-4 text-lg font-semibold text-gray-700">
+                <!-- Remaining submissions will be shown here -->
+            </div>
         </div>
         
         <div id="idea-inputs" class="space-y-4">
@@ -25,13 +54,74 @@
 
     {{ room_name|json_script:"room-name" }}
     <script>
+        // Timer variables
+        let countdownInterval = null;
+        let countdownEndTime = null;
+        const countdownElement = document.getElementById('round-countdown');
+
+        // new line added to avoid weird indent at first line
+        const log = document.querySelector('#chat-log-common');
+        log.textContent = '\n';
+
+        // Countdown function
+        function startCountdown(durationSeconds) {
+            if (countdownInterval) clearInterval(countdownInterval);
+
+            countdownEndTime = Date.now() + durationSeconds * 1000;
+
+            function updateCountdown() {
+                const now = Date.now();
+                let remaining = Math.max(0, Math.round((countdownEndTime - now) / 1000));
+
+                // Format as mm:ss
+                const min = Math.floor(remaining / 60);
+                const sec = remaining % 60;
+                const formatted = `${min}:${sec.toString().padStart(2, '0')}`;
+
+                if (remaining > 10) {
+                    // Only update every 10 seconds
+                    if (remaining % 10 === 0 || remaining === durationSeconds) {
+                        countdownElement.innerHTML = `<span class="text-gray-700">Temps restant: ${formatted}</span>`;
+                        countdownElement.className = "mb-4 text-lg font-semibold text-gray-700 text-right";
+                    }
+                } else {
+                    // Update every second, in red
+                    countdownElement.innerHTML = `<span class="text-red-500 font-bold animate-pulse">Temps restant: ${formatted}</span>`;
+                    countdownElement.className = "mb-4 text-lg font-semibold text-red-500 text-right";
+                }
+
+                if (remaining <= 0) {
+                    clearInterval(countdownInterval);
+                }
+            }
+
+            // First update immediately
+            updateCountdown();
+
+            // Always update every second, but only change display every 10s if >10s left
+            countdownInterval = setInterval(updateCountdown, 1000);
+        }
+
         class ChatInput {
             static totalSubmits = 0;
             static maxSubmits = Infinity;
             static instances = [];
             static globalCountElement = document.getElementById('global-submission-remaining');
 
-            constructor(socket, container, defaultValue = '', autoFocus = false) {
+            static reset() {
+                // Remove all DOM elements for each instance
+                ChatInput.instances.forEach(instance => {
+                    if (instance.wrapper && instance.wrapper.parentNode) {
+                        instance.wrapper.parentNode.removeChild(instance.wrapper);
+                    }
+                });
+
+                // Reset the instances array and total submissions
+                ChatInput.instances = [];
+                ChatInput.totalSubmits = 0;
+            }
+
+            constructor(socket, container, defaultValue = '', autoFocus = false, checked=false) {
                 this.socket = socket;
                 this.container = container;
                 this.submitCount = 0;
@@ -41,19 +131,63 @@
                 // Set the form to grow and take remaining space
                 this.form.className = "flex items-center space-x-2 flex-grow";
 
+                this.input = document.createElement('textarea');
+                // Set rows based on defaultValue line count (min 1, max 4)
+                const lineCount = defaultValue.split('\n').length;
+                this.input.rows = Math.min(Math.max(lineCount, 1), 4);
+                this.input.name = 'message';
+                this.input.value = defaultValue;
+                this.input.className = "flex-1 p-2 border border-gray-300 rounded-lg resize-none overflow-hidden";
+                this.input.placeholder = "Écris ton idée ici...";
+                this.input.maxLength = 200; // Built-in character limit
+                
+                this.input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+
+                this.input.addEventListener('input', () => {
+                    // Auto-grow: reset height first to calculate correctly
+                    this.input.style.height = 'auto';
+
+                    // Cap at 4 rows = approx 4 * line-height (~24px default)
+                    const maxHeight = 4 * 24;
+                    this.input.style.height = Math.min(this.input.scrollHeight, maxHeight) + 'px';
+
+                    // Enforce newline limit
+                    const lines = this.input.value.split('\n');
+                    if (lines.length > 4) {
+                        this.input.value = lines.slice(0, 4).join('\n');
+                    }
+                });
+
+                // Get the current last line of chat-log-common
+                this.previewLine = document.createElement('div');
+                this.previewLine.className = "text-sm text-gray-500 font-mono whitespace-pre-wrap bg-gray-100 rounded-t-lg px-2 py-1 border border-b-0 border-gray-300";
+                this.previewLine.style.cursor = "default"; // Just for user clarity
+                this.previewLine.textContent = ChatInput.getLastLogLine();
+
+                // Wrap preview + input inside a div to simulate a unified textarea feel
+                this.inputWrapper = document.createElement('div');
+                this.inputWrapper.className = "flex-1 flex flex-col";
+
+                this.inputWrapper.appendChild(this.previewLine);
+                this.inputWrapper.appendChild(this.input);
+
                 // Create a radio button for selecting the input
                 this.radio = document.createElement('input');
                 this.radio.type = 'radio';
                 this.radio.name = 'selectedChatInput';
-                this.radio.className = "mr-2";
-
-                this.input = document.createElement('input');
-                this.input.type = 'text';
-                this.input.name = 'message';
-                this.input.value = defaultValue;
-                this.input.autocomplete = 'off';
-                this.input.className = "flex-1 p-2 border border-gray-300 rounded-lg";
-                this.input.placeholder = "Ecris ton idée ici...";
+                this.radio.checked = checked;
+                this.radio.className = "mr-2 scale-150";
+                // Set radio value to match input value
+                this.radio.value = this.input.value;
+                // Keep radio value in sync with input value
+                this.input.addEventListener('input', () => {
+                    this.radio.value = this.input.value;
+                });
 
                 this.button = document.createElement('button');
                 this.button.type = 'submit';
@@ -70,9 +204,12 @@
                 this.countBox.textContent = '0';
 
                 // Append the input, button, and count box to the form
-                this.form.appendChild(this.input);
+                this.form.appendChild(this.inputWrapper);
                 this.form.appendChild(this.button);
                 this.form.appendChild(this.countBox);
+
+                // Replace this.form.appendChild(this.input); with:
+                this.form.insertBefore(this.inputWrapper, this.button);
 
                 // Wrap radio and form in a flex container
                 this.wrapper = document.createElement('div');
@@ -107,7 +244,7 @@
                     return;
                 }
 
-                const message = this.input.value.trim();
+                const message = this.input.value;
                 if (message !== '') {
                     this.socket.send(JSON.stringify({ message }));
                     this.submitCount += 1;
@@ -143,7 +280,7 @@
 
             disable() {
                 this.button.disabled = true;
-                this.input.disabled = true;
+                // this.input.disabled = true;
             }
 
             disableAllInputs() {
@@ -151,14 +288,21 @@
             }
 
             static ensureEmptyInput(socket, container) {
-                const hasEmptyInput = ChatInput.instances.some(instance => instance.input.value.trim() === '');
+                const hasEmptyInput = ChatInput.instances.some(instance => instance.input.value === '');
                 if (!hasEmptyInput) {
                     new ChatInput(socket, container, '', false);
                 }
             }
 
+            static getLastLogLine() {
+                const log = document.querySelector('#chat-log-common');
+                if (!log) return '';
+                const lines = log.textContent.split('\n').filter(l => l.trim() !== '');
+                return lines.length ? lines[lines.length - 1] : '';
+            }
+
             static isIdeaPresent(text) {
-                return ChatInput.instances.some(instance => instance.input.value.trim() === text.trim());
+                return ChatInput.instances.some(instance => instance.input.value === text);
             }
         }
 
@@ -173,32 +317,52 @@
         );
 
         // maximum number of promotions allowed
-        ChatInput.maxSubmits = 3;
+        ChatInput.maxSubmits = 0;
 
-        // Add a radio button labeled "Attendre plus d'idées"
-        const waitRadioContainer = document.createElement('div');
+        // // Add a radio button labeled "Attendre plus d'idées"
+        // const waitRadioContainer = document.createElement('div');
 
-        const waitRadio = document.createElement('input');
-        waitRadio.type = 'radio';
-        waitRadio.name = 'selectedChatInput';
-        waitRadio.value = 'wait';
-        waitRadio.checked = true; // Automatically select it on page load
+        // const waitRadio = document.createElement('input');
+        // waitRadio.type = 'radio';
+        // waitRadio.name = 'selectedChatInput';
+        // waitRadio.value = '';
+        // waitRadio.checked = true; // Automatically select it on page load
 
-        const waitLabel = document.createElement('label');
-        waitLabel.textContent = "Attendre plus d'idées";
-        waitLabel.style.marginLeft = '8px';
+        // const waitLabel = document.createElement('label');
+        // waitLabel.textContent = "Attendre plus d'idées";
+        // waitLabel.style.marginLeft = '8px';
 
-        waitRadioContainer.appendChild(waitRadio);
-        waitRadioContainer.appendChild(waitLabel);
-        document.getElementById('idea-inputs').appendChild(waitRadioContainer);
+        // waitRadioContainer.appendChild(waitRadio);
+        // waitRadioContainer.appendChild(waitLabel);
+        // document.getElementById('idea-inputs').appendChild(waitRadioContainer);
 
-        new ChatInput(chatSocket, document.getElementById('idea-inputs'), '', autoFocus=true);
+        new ChatInput(chatSocket, document.getElementById('idea-inputs'), '', autoFocus=true, checked = true);
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
 
             if (data.type === 'common') {
-                document.querySelector('#chat-log-common').value += (data.message + '\n');
+                // document.querySelector('#chat-log-common').value += (data.message);
+                const log = document.querySelector('#chat-log-common');
+
+                // Remove previous caret if any
+                const oldCaret = log.querySelector('.blinking-caret');
+                if (oldCaret) {
+                    oldCaret.remove();
+                }
+
+                // Append new message
+                const messageSpan = document.createElement('span');
+                messageSpan.textContent = data.message;
+                log.appendChild(messageSpan);
+
+                // Add blinking caret
+                const caret = document.createElement('span');
+                caret.className = 'blinking-caret';
+                log.appendChild(caret);
+
+                // Scroll to bottom
+                log.scrollTop = log.scrollHeight;
             } else if (data.type === 'promoted_idea') {
                 // Check if the idea is already present
                 if (!ChatInput.isIdeaPresent(data.message)) {
@@ -207,6 +371,30 @@
                     // Send the message back through the WebSocket
                     chatSocket.send(e.data);
                 }
+            } else if (data.type === 'roundinfo') {
+                // Set the task description if provided
+                if (data.task_description !== undefined) {
+                    document.getElementById('task-description').textContent = data.task_description;
+                }
+                
+                ChatInput.maxSubmits = data.nb_idea_promotions
+                ChatInput.reset();
+                ChatInput.updateGlobalCountDisplay();
+                new ChatInput(chatSocket, document.getElementById('idea-inputs'), '', autoFocus=true, checked=true);
+
+                // Start countdown
+                if (data.round_duration) {
+                    startCountdown(data.round_duration);
+                }
+            } else if (data.type === 'request_vote') {
+                // Find the selected radio value
+                const selected = document.querySelector('input[name="selectedChatInput"]:checked');
+                const value = selected ? selected.value : '';
+                chatSocket.send(JSON.stringify({
+                    type: "vote.response",
+                    request_id: data.request_id,
+                    value: value
+                }));
             } else {
                 console.error('Unknown message type:', data.type);
             }

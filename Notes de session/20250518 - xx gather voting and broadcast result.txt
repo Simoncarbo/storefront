@@ -1,0 +1,12 @@
+implemented with copilot
+
+first test: returns always "on" instead of the selected message
+number of promotions available is at 3 before the end of a round
+
+ok ca marche mtn: le radio button . value n'était pas associé au input value.
+
+
+bon je fais un peu plein de trucs en meme temps. Mais ca avance.
+
+Problème: promouvoir une idée sur plusieurs lignes ne fonctionne pas. -> résolu, c'était juste que la taille de l'input ne permettait pas de voir les autres lignes qui restaient cachées.
+il y a un indent que je n'aime pas en début de phrase. -> résolu en ajouter un newline dès le départ aavec rien comme texte.

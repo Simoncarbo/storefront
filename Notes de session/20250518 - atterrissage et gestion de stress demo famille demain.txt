@@ -20,3 +20,7 @@ rounds = [{'round_index':,'round_start_time':, 'round_end_time':,'nb_idea_promot
 Ok j'avance sur l'implem du process.
 Petit doute: dans run_process: je fais une boucle sur while self.is_running.
 Mais self.is_running pourra-t-il être adapté pendant la boucle?
+Pour le moment je m'en fou. On verra ca plus tard avec chatgpt
+pour le moment ON FAIT L'HYPOTHESE QU'IL N'Y AURA PAS D'ADMIN
+
+bug lié au async etc. Quand j'appelle le broadcast, il bug. faut sans doute tout mettre en async. Pourquoi pas eu le problème avec promote idea? A creuser...

@@ -32,9 +32,7 @@ class ChannelLayerForCoopiaProcess(InMemoryChannelLayer):
         if group_name in self.coopia_processes:
             return  # process already created for this group
         else:
-            coopia_process = CoopiaProcess(group_name, start_time = datetime.datetime.now(), 
-                                            round_duration=10, 
-                                            rounds = 10)
+            coopia_process = CoopiaProcess(group_name)
             # Add to group dict
             self.coopia_processes[group_name] = coopia_process
 

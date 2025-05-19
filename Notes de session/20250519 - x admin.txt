@@ -1,0 +1,9 @@
+Copilot request:
+add a web page "str:room_name/admin" that provides buttons and input forms to start, pause, resume, finish a CoopiaProcess and specifies next_round_duration and next_round_nb_idea_promotions
+
+Copilot is on fire :)
+
+c'est bon, ça marche :)
+
+Manque plus que de pouvoir mettre des text pour préciser l'exercice
+et puis implémenter finish pour sauver les résultats dans une table
