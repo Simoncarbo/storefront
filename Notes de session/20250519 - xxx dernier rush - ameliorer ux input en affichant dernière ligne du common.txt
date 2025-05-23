@@ -1,0 +1,9 @@
+demande chatgpt:
+
+In the following front-end html code, a user can submit text fragments through ChatInput instances, that are sent to a backend where some collaborative decision process takes place. The ultimate purpose of text fragments are to be appended to the text in chat-log-common (without a newline). To improve user experience, the last line of chat-log-common should be visible in the ChatInput instance, such that the user sees how his input text fragment will integrate in chat-log-common. The last line of chat-log-common should not be editable, and should not be sent to the backend for the decision process. Can you implement this UX improvement?
+
+
+J'a iun peu rushé le truc. J'ai testé mais la page room devenait toute vide, sans message d'erreur.
+A creuser plus longuement... Pas évident en tout cas!
+
+Et je garde la discussion chatgpt comme source d'infos
