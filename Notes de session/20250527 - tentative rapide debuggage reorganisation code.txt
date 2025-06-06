@@ -1,0 +1,25 @@
+C'est galère ce bug je ne sais pas comment le résoudre il n'y a littéralement aucun message.
+Je pense qu'il devrait y avoir moyen de debuger petit à petit avec le debug tool de vs code
+J'avais vu une video a l'époque
+
+message console du browser: Failed to load resource: the server responded with a status of 404 (Not Found) room_main.js 1
+
+Piste: retirer le folder js dans static/coopia_base_websockets/js
+ca marche pas
+Piste: enlever l'aspect static files et mettre les script dans les templates
+ca marche pas
+ajouter l'url pour les staticfiles
+ca marche pas
+retirer les _ dans coopia_base_websockets (uniquement dans static/)
+ca marche pas
+test de mettre static au niveau du projet plutôt qu'au niveau app
+ca marche pas
+test de mettre debug=False dans settings (+ ALLOWED_HOST basé sur IPv4)
+ca marche pas
+test dans l'import html static, ajouter un 's' a 'coopia_base_websocket'
+CA MAAAAAARCHE :DDDDDDDDDDDDDDDDDDD
+
+Cool.
+
+Next bug:
+Uncaught SyntaxError: Cannot use import statement outside a module (at room_main.js:2:1)

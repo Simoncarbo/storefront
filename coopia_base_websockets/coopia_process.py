@@ -96,7 +96,7 @@ class CoopiaProcess(object):
         # if was_paused and not getattr(self, "_run_process_task", None):
         #     self._run_process_task = async_to_sync(self.run_process)()
     
-    def finish(self):
+    def finish(self, save = True):
         """
         Finish the CoopiaProcess.
         """
@@ -106,19 +106,20 @@ class CoopiaProcess(object):
 
         self.end_time = datetime.datetime.now()
 
-        # Save process info to the database
-        try:
-            CoopiaProcessInfo.objects.create(
-                process_id=self.process_id,
-                group_name=self.group_name,
-                task_description=self.task_description,
-                result=self.result,
-                start_time=self.start_time,
-                end_time=self.end_time,
-                current_round_index=self.current_round_index
-            )
-        except Exception as e:
-            print(f"Error saving process info: {e}")
+        if save:
+            # Save process info to the database
+            try:
+                CoopiaProcessInfo.objects.create(
+                    process_id=self.process_id,
+                    group_name=self.group_name,
+                    task_description=self.task_description,
+                    result=self.result,
+                    start_time=self.start_time,
+                    end_time=self.end_time,
+                    current_round_index=self.current_round_index
+                )
+            except Exception as e:
+                print(f"Error saving process info: {e}")
 
     def set_next_round_parameters(self, next_round_duration: int, next_round_nb_idea_promotions: int):
         """

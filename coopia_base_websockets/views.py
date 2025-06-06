@@ -50,7 +50,7 @@ def room_admin_action(request, room_name):
             process.resume()
             process.set_next_round_parameters(next_round_duration=duration, next_round_nb_idea_promotions=nb_promotions)
         elif action == "finish":
-            process.finish()
+            process.finish(save = False)
         elif action == "next_round":
             process.set_next_round_parameters(next_round_duration=duration, next_round_nb_idea_promotions=nb_promotions)
         else:

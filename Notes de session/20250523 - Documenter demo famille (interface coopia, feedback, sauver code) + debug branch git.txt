@@ -1,0 +1,5 @@
+30 minutes
+
+ok pour rebase ou merge branch il faut d'abord être sur la main branch.
+Pour être sur la main branch faut faire trois petits points -> checkout to... et puis sélectionner la main branch
+

@@ -1,0 +1,29 @@
+Quid d'ajouter ?version=2 au path de .js? Demande ChatGPT
+The ?version=2 in the script tag is a query parameter appended to the URL of the JavaScript file. It serves a key role in cache busting.Browsers aggressively cache static assets like JavaScript, CSS, and images. If you update your JS file but keep the URL the same, users may continue to load the old, cached version and never see your changes.
+
+Appending a query string like ?version=2 forces the browser to fetch a fresh version from the server because the URL has changed, even though the base file is the same.
+
+J'ai utilisé le datetime plutot que version pour faire un reload auto sans devoir systématiquement changer la version
+Parfois il faut qd meme faire ctrl/shift+R pour que la modif ait lieu.
+
+
+Bizarre: appuyer sur enter ne promeut plus les idées mais fait une nouvelle ligne (shift-Enter aussi).
+-> il y avait une erreur dans le code: eventDefault() plutôt que preventDefault()
+RESOLU
+
+_________
+Quelles classes js?
+IdeaInput
+IdeaListForVote
+CommonText
+CycleInfo (countdown and co)
+
+Quelles scripts?
+main
+Websocket_handlers
+_____
+
+je me lance dans CycleInfo avec le countdown. CHECK
+
+Je me lance dans websocket handlers: bizarre, depuis le changement, il print 5 fois chaque nouveau résultat de vote dans le "common". Ou 4 fois. Ajouter des ChatRooms ne change rien, ca reste une répétition 5 fois.
+--> a débugger

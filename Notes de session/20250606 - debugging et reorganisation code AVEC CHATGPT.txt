@@ -1,0 +1,15 @@
+Salut salut. Allez, on s'y remet. D'abord relire vite ef les notes précédentes.
+
+le bug précédent "bizarre, depuis le changement, il print 5 fois chaque nouveau résultat de vote dans le "common". Ou 4 fois. Ajouter des ChatRooms ne change rien, ca reste une répétition 5 fois." C'EST RESOLU TOUT SEULLLLL :DDDDD merci le reboot. Cool!
+
+
+Bon j'ai systematiquement des problemes pour ffaire control+C pour arreter le serveur. C'est depuis cette histoire d'admin. J'enleve la partie "save" dans la DB pour finish process et je check si finir les process aide. YES, ca marche :)))
+
+
+Je bosse sur le split the ideaInput et ideaList
+mais le nouvaeu script js n'arrive pas a etre trouvé par le browser m algré le clear cache, nouvelle console vs, restart the browser. J'essaie de restart le pc...
+J'avais juste oublié de mettre .js au nom du fichier... merci copilot
+
+OKk après quelques peurs ca a l'air de marcher en séparant IdeaInput et IdeaInputManager
+
+Je sauve dans git!
