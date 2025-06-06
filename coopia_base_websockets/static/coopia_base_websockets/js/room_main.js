@@ -1,5 +1,4 @@
-
-import { IdeaInputManager } from './idea_input_new.js';
+import { IdeasManager } from './ideas_manager.js';
 import { CoopiaSocketOnMessage } from './websocket_handlers.js';
 
 
@@ -17,12 +16,7 @@ const CoopiaSocket = new WebSocket(
     + roomName
     + '/'
 );
-const IdeasManager = new IdeaInputManager(CoopiaSocket, document.getElementById('idea-inputs'), 5); // 5 max submissions
+const manager = new IdeasManager(CoopiaSocket, document.getElementById('idea-inputs'), 5); // 5 max submissions
 
-CoopiaSocket.onmessage = e => CoopiaSocketOnMessage(e, CoopiaSocket, IdeasManager);
+CoopiaSocket.onmessage = e => CoopiaSocketOnMessage(e, CoopiaSocket, manager);
 CoopiaSocket.onclose = e => console.error('Socket closed unexpectedly');
-
-
-// maximum number of promotions allowed
-// IdeaInput.maxSubmits = 0;
-// new IdeaInput(CoopiaSocket, document.getElementById('idea-inputs'), '', true, true);
