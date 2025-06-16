@@ -1,30 +1,10 @@
 import { startCountdown } from './vote_process.js';
 
-export function CoopiaSocketOnMessage(e, CoopiaSocket, IdeasManager) {
+export function CoopiaSocketOnMessage(e, CoopiaSocket, IdeasManager, chatLogCommon) {
     const data = JSON.parse(e.data);
 
     if (data.type === 'common') {
-        // document.querySelector('#chat-log-common').value += (data.message);
-        const log = document.querySelector('#chat-log-common');
-
-        // Remove previous caret if any
-        const oldCaret = log.querySelector('.blinking-caret');
-        if (oldCaret) {
-            oldCaret.remove();
-        }
-
-        // Append new message
-        const messageSpan = document.createElement('span');
-        messageSpan.textContent = data.message;
-        log.appendChild(messageSpan);
-
-        // Add blinking caret
-        const caret = document.createElement('span');
-        caret.className = 'blinking-caret';
-        log.appendChild(caret);
-
-        // Scroll to bottom
-        log.scrollTop = log.scrollHeight;
+        chatLogCommon.appendMessage(data.message);
     } else if (data.type === 'promoted_idea') {
         // Check if the idea is already present
         if (!IdeasManager.isIdeaPresent(data.message)) {

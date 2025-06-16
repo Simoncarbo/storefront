@@ -13,3 +13,6 @@ J'avais juste oublié de mettre .js au nom du fichier... merci copilot
 OKk après quelques peurs ca a l'air de marcher en séparant IdeaInput et IdeaInputManager
 
 Je sauve dans git!
+bonne chose de faite.
+
+Maintenant: on passe aux nouvelles idées!

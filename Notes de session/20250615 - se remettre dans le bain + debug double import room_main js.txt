@@ -1,0 +1,30 @@
+bon je vais un peu relire pein de choses pour me remettre dans le bain. Je me donne 30 minutes. Pour commencer.
+
+relecture des notes manuscrites. J'y retrouves pas mal d'émotions et des états d'esprits qui me paraissent lointains alors que c'était il y a moins d'1 mois. C'est dingue. Je suis dingue. J'aurais du mal à imaginer comment Coopia me mettrait dans des états pareils aujourd'hui. Mais c'est sans doute juste parce qu'ajourd'hui je suis obsédé par les spectacles et que Coopia me parait plus accessoire (ou pas).
+
+Sinon j'ai réécris la dernière version du frontend. Avec votes s'arrêtant qd on atteint un certain % de votes. Et aussi un % d'inspiration qui détermine si il y a ou non une phase de propagation d'idées. Pour que ca ne soit plus a la charge de l'utilisateur de gérer la propagation de ses idées.
+
+
+
+va falloir que je reteste le log commonsur lequel j'ai ajouté un fade etc.
+Il y avait des bugs aux dernières nouvelles.
+
+Ok donc il y avait des bugs à la fin liés à chat-log-common.
+Je relance le serveur et browser pour voir si c'est toujours le cas.
+
+Si c'est toujours le cas RAF Fuck you
+Sinon c'est cool
+
+Et après je ferai quoi? Je retire les boutons promouvoir. J'ajoute un bouton envoyer vote. Je garde la logique de 'Promote idea' car elle sera encore relevante pour la phase d'inspiration?
+
+Ok je me donne 45 minutes pour checker ca.
+
+Ca commence bien : il y a deux ideas inputs au démarrage alors qu'il n'est sensé y en avoir que 1?
+Copilot dis que c'est à cause du constructeur de IdeasManager+reset, mais je n'y crois pas et je teste sa solution qui ne foncitonne pas: si je commente addInput dans le constructeur il n'y a pas d'inputs du tout qui apparaissent.
+Je teste de voir si c'est lié à ensureemptyInput NON
+je teste de voir si c'est lié à la classe IdeaInput
+	je me demande c'est quoi que le constructeur de IdeaInput retourne. Car IdeasManager utilise ce qui est retourné.
+	non c'est pas ca!
+Copilot me propose console.log('IdeasManager constructor called'); pour voir dans le browser combien de fois le constructeur est appelé.
+Et il est bien appelé deux fois! That's the problem. Mais ou?
+Ok j'ai trouvé, juste à temps :ooo c'est en important l'instance chatLogCommon dans websocket_handlers. L'import utilisait room_main.js sans le timestamp! du coup ca reloadait encore une fois. Ah beih bravo...

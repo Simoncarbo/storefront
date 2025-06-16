@@ -74,6 +74,8 @@ export class IdeaInput {
         if (this.manager.totalSubmits >= this.manager.maxSubmits) {
             this.disable();
         }
+
+        // return this.wrapper;
     }
 
     sendMessage() {

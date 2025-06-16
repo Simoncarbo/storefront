@@ -2,6 +2,7 @@ import { IdeaInput } from './idea_input.js';
 
 export class IdeasManager {
     constructor(socket, container, maxSubmits = Infinity, globalCountElementId = 'global-submission-remaining') {
+        console.log('IdeasManager constructor called');
         this.socket = socket;
         this.container = container;
         this.maxSubmits = maxSubmits;
@@ -11,6 +12,8 @@ export class IdeasManager {
         this.updateGlobalCountDisplay();
 
         this.addInput('', true, false)
+
+        
     }
 
     reset(maxSubmits = null) {
@@ -28,7 +31,7 @@ export class IdeasManager {
     addInput(defaultValue = '', autoFocus = false, checked = false) {
         const input = new IdeaInput(this, this.socket, this.container, defaultValue, autoFocus, checked);
         this.instances.push(input);
-        return input;
+        // return input;
     }
 
     ensureEmptyInput() {
