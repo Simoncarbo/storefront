@@ -19,8 +19,7 @@ export function CoopiaSocketOnMessage(e, CoopiaSocket, IdeasManager, chatLogComm
             document.getElementById('task-description').textContent = data.task_description;
         }
         
-        IdeasManager.reset(data.nb_idea_promotions);
-        IdeasManager.updateGlobalCountDisplay();
+        IdeasManager.reset();
 
         // Start countdown
         if (data.round_duration) {

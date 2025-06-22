@@ -1,0 +1,18 @@
+Ok je m'occupe de IdeaInput et IdeasManager dans un premier temps.
+Fais toi confiance, Sim.
+ OK c'est fait.
+
+Déjà envie d'ajouter 
+- radio button "Je manque d'inspiration"
+- single line idea input but options to select New line ou New paragraph
+
+
+Change the input text such that it does not support new lines. Separately from the input text, add a way for the user to select the options 'New Line' or 'New paragraph' (for example, with a menu button associated to the input). These buttons should be the only way to add new lines. The elements for the options New Line and New paragraph should be streamlined and well designed.
+
+The New line and New paragraph options are supposed to be selected maximum once, and not both together. And their function is to add new lines at the beginning of the input text only.
+
+
+
+
+Currently, the content of chat log common is embedded in a grey box, which itself is embedded in a white box. I want all the boxes to be white, such that the text content of chat log common visually floats in bigger white box
+also remove the border, and make the initial height of the box smaller. The size of the box should adjust to the text inside it

@@ -5,28 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Room</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .blinking-caret {
-            display: inline-block;
-            width: 1px;
-            background-color: black;
-            animation: blink 1s step-start infinite;
-            height: 1em;
-            vertical-align: bottom;
-            margin-left: 2px;
-        }
-
-        @keyframes blink {
-            50% {
-            opacity: 0;
-            }
-        }
-
-        .highlight {
-            background-color: #fff9c0;
-            transition: background-color 1s ease;
-        }
-    </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center p-6">
     <div class="w-full max-w-4xl bg-white shadow-md rounded-lg p-6">
@@ -37,7 +15,7 @@
         </div>
 
         <div id="chat-log-common" 
-            class="w-full p-2 border border-gray-300 rounded-lg mb-4 bg-gray-50 resize-none whitespace-pre-wrap font-mono h-60 overflow-y-auto leading-snug text-left text-indent-0">
+            class="w-full p-2 rounded-lg mb-4 resize-none whitespace-pre-wrap font-mono min-h-[2em] leading-snug text-left text-indent-0">
         </div>
 
         <div class="flex justify-between items-center mb-4 text-lg font-semibold text-gray-700">

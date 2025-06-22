@@ -2,7 +2,7 @@ bon je vais un peu relire pein de choses pour me remettre dans le bain. Je me do
 
 relecture des notes manuscrites. J'y retrouves pas mal d'émotions et des états d'esprits qui me paraissent lointains alors que c'était il y a moins d'1 mois. C'est dingue. Je suis dingue. J'aurais du mal à imaginer comment Coopia me mettrait dans des états pareils aujourd'hui. Mais c'est sans doute juste parce qu'ajourd'hui je suis obsédé par les spectacles et que Coopia me parait plus accessoire (ou pas).
 
-Sinon j'ai réécris la dernière version du frontend. Avec votes s'arrêtant qd on atteint un certain % de votes. Et aussi un % d'inspiration qui détermine si il y a ou non une phase de propagation d'idées. Pour que ca ne soit plus a la charge de l'utilisateur de gérer la propagation de ses idées.
+Sinon j'ai réécris dans mon carnet la dernière version du frontend. Avec votes s'arrêtant qd on atteint un certain % de votes. Et aussi un % d'inspiration qui détermine si il y a ou non une phase de propagation d'idées. Pour que ca ne soit plus a la charge de l'utilisateur de gérer la propagation de ses idées.
 
 
 
