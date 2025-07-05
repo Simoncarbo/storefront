@@ -1,0 +1,25 @@
+IL FAUT DE TOUTE FACON DE LA CENTRALISATION POUR CONSUIRE UN TEXTE COMMUN A TOUS.TES
+n'empêche tout ce qui est texte commun, la blockchain pourrait être utile (merci Arnould). La blockchain c'est un peu comme: qui devinera le mot que j'ai en tête peut commencer?
+
+
+Et pour le process de partage d'idées?
+ca peut être aléatoire et décentralisé, mais alors tout le monde n'aura pas exactement deux idées. Est-ce un problème? Non, pas trop.
+
+Donc on centralise uniquement le pourcentage de personne inspirées (-> le choix de oui ou non diffuser des idées) pour chaque round et le texte commun?
+(et les adresses IP de tous.tes les participant.e.s)
+
+Prenons un exemple:
+3 personnes inspirées sur 8 -> diffusion d'un facteur 8/3 * 2 = 5,33333
+-> 16 messages envoyés à 8 personnes, moyenne de deux messages reçu par pers.
+-> contraintes pour réenvoi: 
+	- idée déjà présente
+	- déjà reçu deux idées ?? risque qu'on finisse par perdre des idées à cause de ça? En même temps si qqn recoit trop d'idées c'est aussi des idées "perdues" car attention limitée.
+et en même temps c'est vite chaud voir impossible de répartir parfaitement les idées. E.g. si les deux premières idées sont envoyées au même 5/6 personnes, alors il ne reste plus que 3/2 personnes pour recevoir la troisième idée... impossible
+Après comme c'est du tirage au sort, probablement que deux idées ne vont pas être envoyées exactement aux mêmes personnes...
+
+autre exemple:
+5 personnes inspirées sur 100 -> diffusion d'un facteur 100 / 5 * 2 = 40 (!)
+Communique-t-on toutes les adresses ayant déjà reçu le message pour éviter le resend?
+ca augmenterait les chances de toucher tout le monde. A voir...
+
+La décentralisation implique aussi de faire confiance aux hôtes. Par exemple, un hôte pourrait recevoir une idée, et utiliser le système de renvoi pour envoyer son idée à qqn d'autre à la place. Après c'est un problème qu'on ne sait pas résoudre. Qqn pourrait avoir deux téléphones et deux comptes également.

@@ -1,0 +1,3 @@
+retirer espaces ou ". " en début de phrase qd on clique sur nouvelle ligne/nouveau paragraphe
+Enter = envoyer vote
+quand le texte devient trop long, automatiquement scroller vers le bas

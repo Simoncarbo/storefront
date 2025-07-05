@@ -1,0 +1,20 @@
+comence par html page retirer le background blanc.
+
+p-6: Adds padding of 1.5rem (24px) on all sides of the body.
+For content boxes or cards (like the div you mentioned), p-6 (24px) is a very common choice. It creates enough space to keep text readable and visually pleasing without being wasteful.
+
+max-w-4xl: Limits the maximum width to Tailwind’s 4xl size, which is 56rem (896px). This prevents the container from becoming too wide on large screens.
+je descend à max-w-2xl :)
+
+
+
+Bon cette histoire de prefix dans ideaInput c'est un peu trop le bordel. Ca ne me convient pas.
+L'aspect newline et prefix du commonlog se mélange d'une manière qui ne me plait pas.
+
+au final je simplifie la logique du caret, on l'ajoutant d'office a moins que idea_prefix = ''
+Le seul hic qui reste c'est que le caret reste meme quand on active Newline ou Newparagraphe, mais ce n'est pas trop grave.
+
+J'ai changé vite fait la largeur du menu newline pour que "Dans une nouvelle ligne" puisse coller sur une seule ligne
+
+
+0 messages copilot utilisés! uniquement chatgpt

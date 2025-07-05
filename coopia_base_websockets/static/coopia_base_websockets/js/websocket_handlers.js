@@ -27,8 +27,7 @@ export function CoopiaSocketOnMessage(e, CoopiaSocket, IdeasManager, chatLogComm
         }
     } else if (data.type === 'request_vote') {
         // Find the selected radio value
-        const selected = document.querySelector('input[name="selectedIdeaInput"]:checked');
-        const value = selected ? selected.value : '';
+        const value = ideasManager.getSelectedIdeaValue();
         CoopiaSocket.send(JSON.stringify({
             type: "vote.response",
             request_id: data.request_id,

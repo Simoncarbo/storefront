@@ -91,6 +91,37 @@ export class ChatLogCommon {
         this.logElement.appendChild(caret);
     }
 
+        /**
+     * Returns the n last characters of the last line in the logElement.
+     * If the last line contains 0 characters, returns ''.
+     * Adds '...' to the beginning only if the last line contains more than n characters.
+     * The placeholder, if present, is ignored.
+     * @param {number} n
+     * @returns {string}
+     */
+    getLastNCharsOfLastLine(n) {
+        // Get all child nodes except the placeholder
+        let text = '';
+        this.logElement.childNodes.forEach(node => {
+            if (
+                !(node.nodeType === Node.ELEMENT_NODE &&
+                  node === this.placeholderSpan)
+            ) {
+                text += node.textContent || '';
+            }
+        });
+        const lines = text.split('\n');
+        const lastLine = lines.length > 0 ? lines[lines.length - 1] : '';
+        if (!lastLine || lastLine.length === 0) {
+            return '';
+        }
+        if (lastLine.length > n) {
+            return '...' + lastLine.slice(-n);
+        } else {
+            return lastLine;
+        }
+    }
+
     scrollToBottom() {
         this.logElement.scrollTop = this.logElement.scrollHeight;
     }

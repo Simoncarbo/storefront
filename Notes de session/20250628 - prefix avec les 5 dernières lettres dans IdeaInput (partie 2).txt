@@ -1,0 +1,28 @@
+ok le lien ce fait, je vois les prefix printé dans le log. Mais plusieurs problèmes:
+- ca met trois petit points meme qd il y a un seul caractere dans la ligne, pas logique OK
+- ca indique aussi le prefix basé sur le "Ici se cosntruit le texte collaboratif, un bout à la fois." OK
+- 5 charactères c'est un peu peu? OK
+
+Avant de corriger les bugs, voir niveau interface si ca le fait d'inclure un prefix dans l'ideaInput.
+
+chatGPT: Develop code such that idea_prefix is shown to the user inside the text input box, without being editable. The caret of the user text input should be located just at the end of the idea_prefix, so that visually the text written by the user extends idea_prefix.
+
+Après un peu de chipot, ca marche!! :)
+
+Bugs:
+- quand je fais un très long texte, la fin disparait derrière le + button. OK
+- quand je fais un très long mot, il dépasse du result_output box.
+
+
+Copilot: Show the non-editable prefix only when selectedPrefix = Null. Potentially, there's a way to group all the logic related to selectedPrefix in a single function (updateMenuChecks also has logics based on selectedPrefix)
+
+Ca marche :)
+
+ChatGPT: In the updated code, how to make sure the input text stops before the plus button (to avoid text being shown behind the plus button ) OK
+
+copilot: in getLastNCharsOfLastLine, add '...' only if las line contains more than n characters. Moreover, the placeholder, if present, should not be taken into account. i.e. the last n characters of last line should not be part of the placeholder.
+
+
+J'ai juste encore un bug sur l'apparence du prefix. Une fois qu'on commence à écrire, ca fait bizarre car on ne fait plus la distinction entre le prfix et ce qu'on écrit. OK
+
+copilot: add a grey vertical caret between this.prefix and this.input when there's user generated text in this.input

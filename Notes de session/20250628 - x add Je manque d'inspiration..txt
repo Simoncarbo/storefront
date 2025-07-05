@@ -1,0 +1,3 @@
+In the constructor, add radio button option which has value '' and label "Je manque d'inspiration.". it should be added before addInput.
+
+OK :)

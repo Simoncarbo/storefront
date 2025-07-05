@@ -1,11 +1,29 @@
 import { IdeaInput } from './idea_input.js';
 
 export class IdeasManager {
-    constructor(container) {
+    constructor(container, chatLogCommon) {
         this.container = container;
         this.instances = [];
         this.radioName = 'selectedIdeaInput';
         this.selectedIndex = null; // Track which input is selected
+
+        this.chatLogCommon = chatLogCommon;
+        this.chatLogCommon_prefix_length = 7;
+
+        // Add "Je manque d'inspiration." radio option before addInput
+        this.inspirationRadio = document.createElement('input');
+        this.inspirationRadio.type = 'radio';
+        this.inspirationRadio.name = this.radioName;
+        this.inspirationRadio.value = '';
+        this.inspirationRadio.className = "mr-2 scale-150";
+        this.inspirationRadio.id = 'inspiration-radio';
+        const inspirationLabel = document.createElement('label');
+        inspirationLabel.htmlFor = 'inspiration-radio';
+        inspirationLabel.textContent = " Je manque d'inspiration. Envoyez-moi des idées et effectuons un nouveau vote.";
+
+        // Insert at the top of the container
+        this.container.appendChild(this.inspirationRadio);
+        this.container.appendChild(inspirationLabel);
 
         this.addInput('', true, true);
     }
@@ -24,7 +42,8 @@ export class IdeasManager {
     }
 
     addInput(defaultValue = '', autoFocus = false, checked = false) {
-        const input = new IdeaInput(this.container, defaultValue, autoFocus, checked);
+        const idea_prefix = this.chatLogCommon.getLastNCharsOfLastLine(this.chatLogCommon_prefix_length)
+        const input = new IdeaInput(this.container, defaultValue, idea_prefix, autoFocus, checked);
         // Create radio button and insert before the input's wrapper
         input.radio = document.createElement('input');
         input.radio.type = 'radio';
@@ -59,6 +78,10 @@ export class IdeasManager {
 
     // Get the value of the selected idea (radio)
     getSelectedIdeaValue() {
+        // Check if the inspirationRadio is selected
+        if (this.inspirationRadio.checked) {
+            return this.inspirationRadio.value; // which is ''
+        }
         const selected = this.instances[this.selectedIndex];
         if (selected) {
             // Set radio value to current input value before returning
@@ -68,11 +91,4 @@ export class IdeasManager {
         return null;
     }
 
-    // Optionally, get all values with their checked state
-    getAllIdeas() {
-        return this.instances.map((instance, idx) => ({
-            value: instance.input.value,
-            checked: idx === this.selectedIndex
-        }));
-    }
 }

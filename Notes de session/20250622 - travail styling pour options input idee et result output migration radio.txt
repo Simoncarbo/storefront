@@ -4,9 +4,9 @@ ajout du bouton "+" dans l'input text box.
 Migration de la logique radio buttons vers IdeasManager
 
 Travail sur result_output
-- css intégré au fichier javascript plutôt que dans room.html
+- css lié au blinking caret intégré au fichier javascript plutôt que dans room.html
 - retirer le blinking
-- recentrer et agrandir
+- recentrer et agrandir le caret
 - rendre gris lorsque le caret n'est plus a la fin du texte
 
 

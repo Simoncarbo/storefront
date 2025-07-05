@@ -26,8 +26,6 @@ class CoopiaProcess(object):
         self.process_id = group_name+str(datetime.datetime.now())  # Unique process ID
         # for the moment, we assume a one-to-one mapping between group and coopia process
 
-
-        # Initialize any required attributes or methods here
         self.max_duration = max_duration  # Duration of each round in seconds
         self.max_rounds = max_rounds  # Number of rounds to be played
 
@@ -142,31 +140,6 @@ class CoopiaProcess(object):
                                                     "message": idea, 
                                                     "excluded_participants":excluded_participants}
                 )
-
-    async def broadcast_countdown(self,end_time = None, send_every_x_seconds = 5):
-        """
-        NOT USED FOR THE MOMENT
-
-        Broadcast a countdown to all participants every second until end_time.
-        """
-        channel_layer = get_channel_layer()
-
-        while True:
-            now = datetime.datetime.now()
-            seconds_left = int((end_time - now).total_seconds())
-
-            if seconds_left <= 0:
-                break
-
-            await channel_layer.group_send(
-                self.group_name,
-                {
-                    "type": "send.countdown",
-                    "seconds_left": seconds_left,
-                }
-            )
-
-            await asyncio.sleep(send_every_x_seconds)
 
     async def gather_voting_from_random_participant(self):
         """

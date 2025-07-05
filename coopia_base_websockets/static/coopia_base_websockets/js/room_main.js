@@ -16,7 +16,7 @@ const coopiaSocket = new WebSocket(
     + roomName
     + '/'
 );
-const ideasManager = new IdeasManager(document.getElementById('idea-inputs'));
+const ideasManager = new IdeasManager(document.getElementById('idea-inputs'),chatLogCommon);
 
 coopiaSocket.onmessage = e => CoopiaSocketOnMessage(e, coopiaSocket, ideasManager,chatLogCommon);
 coopiaSocket.onclose = e => console.error('Socket closed unexpectedly');
@@ -26,7 +26,7 @@ coopiaSocket.onclose = e => console.error('Socket closed unexpectedly');
 
 // --- Add button to append selected idea to chat log ---
 const appendButton = document.createElement('button');
-appendButton.textContent = 'Append Selected Idea';
+appendButton.textContent = 'Envoyer vote';
 appendButton.className = 'btn btn-primary ml-2'; // Optional styling
 
 // Add vertical space and box styling
@@ -43,8 +43,8 @@ ideaInputsContainer.parentNode.insertBefore(appendButton, ideaInputsContainer.ne
 
 appendButton.addEventListener('click', () => {
     const selectedIdea = ideasManager.getSelectedIdeaValue();
-    if (selectedIdea && selectedIdea.trim() !== '') {
-        chatLogCommon.appendMessage(selectedIdea);
-        ideasManager.reset()
-    }
+    // if (selectedIdea) {
+    chatLogCommon.appendMessage(selectedIdea);
+    ideasManager.reset()
+    // }
 });

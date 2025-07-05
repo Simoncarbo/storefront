@@ -1,5 +1,5 @@
 export class IdeaInput {
-    constructor(container, defaultValue = '', autoFocus = false, checked = false) {
+    constructor(container, defaultValue = '', idea_prefix='', autoFocus = false, checked = false) {
         this.container = container;
 
         // Create wrapper
@@ -10,14 +10,32 @@ export class IdeaInput {
         this.form = document.createElement('form');
         this.form.className = "flex items-center space-x-2 flex-grow relative";
 
+        // Wrapper styled like an input
+        this.inputWrapper = document.createElement('div');
+        this.inputWrapper.className = "flex items-center border border-gray-300 rounded-lg px-2 py-1 pr-10 w-full bg-white relative";
+
+        // Non-editable prefix
+        this.prefix = document.createElement('span');
+        this.prefix.textContent = idea_prefix;
+        this.prefix.className = "text whitespace-nowrap";
+        this.prefix.style.backgroundColor = '#fff9c0';
+
+        // Vertical caret (hidden by default)
+        this.caret = document.createElement('div');
+        this.caret.className = "h-5 w-px bg-gray-400 transition-opacity duration-100";
+        this.caret.style.opacity = idea_prefix==='' ? '0' : '1'; // Hide if no prefix
+        this.caret.style.margin = "0"; // Remove horizontal margin
+
+
+        // Editable input
         this.input = document.createElement('input');
         this.input.type = 'text';
-        this.input.name = 'message';
+        this.input.className = "flex-1 outline-none bg-transparent";
         this.input.value = defaultValue;
-        this.input.className = "flex-1 p-2 border border-gray-300 rounded-lg pr-10";
-        this.input.placeholder = "Écris ton idée ici...";
-        this.input.maxLength = 200;
+        this.input.placeholder = " Écris ton idée ici...";
         this.input.autocomplete = "off";
+        this.input.maxLength = 200;
+        if (autoFocus) this.input.focus();
 
         // Prevent Enter key from submitting input
         this.input.addEventListener('keydown', (e) => {
@@ -39,7 +57,7 @@ export class IdeaInput {
 
         // Dropdown menu for options
         this.menu = document.createElement('div');
-        this.menu.className = "absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-lg shadow-lg z-20 hidden";
+        this.menu.className = "absolute right-0 mt-2 max-w-60 bg-white border border-gray-200 rounded-lg shadow-lg z-20 hidden";
         this.menu.style.top = "110%";
         this.menu.innerHTML = `
             <button type="button" class="flex items-center w-full text-left px-4 py-2 hover:bg-gray-100 rounded-t-lg" data-prefix="newline">
@@ -60,10 +78,26 @@ export class IdeaInput {
         this.selectedPrefix = null; // 'newline', 'paragraph', or null
         this.endTextActive = false;
 
-        // Set prefix type only, don't modify input value directly
-        this.updatePrefix = (prefixType) => {
+        this.updatePrefixState = (prefixType) => {
             this.selectedPrefix = prefixType;
+            // Show prefix only if selectedPrefix is null
+            this.prefix.style.display = (this.selectedPrefix === null) ? '' : 'none';
             this.updateMenuChecks();
+        };
+
+        // Update checkmarks in menu
+        this.updateMenuChecks = () => {
+            const buttons = this.menu.querySelectorAll('button[data-prefix]');
+            buttons.forEach(btn => {
+                const checkSpan = btn.querySelector('.checkmark');
+                if (btn.dataset.prefix === this.selectedPrefix && (btn.dataset.prefix === 'newline' || btn.dataset.prefix === 'paragraph')) {
+                    checkSpan.innerHTML = `<svg class="inline w-4 h-4 text-blue-500" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>`;
+                } else if (btn.dataset.prefix === 'endtext' && this.endTextActive) {
+                    checkSpan.innerHTML = `<svg class="inline w-4 h-4 text-blue-500" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>`;
+                } else {
+                    checkSpan.innerHTML = '';
+                }
+            });
         };
 
         // Helper to toggle end of text marker (no text modification here, just state)
@@ -97,9 +131,9 @@ export class IdeaInput {
                     this.toggleEndText();
                 } else {
                     if (this.selectedPrefix === prefixType) {
-                        this.updatePrefix(null);
+                        this.updatePrefixState(null);
                     } else {
-                        this.updatePrefix(prefixType);
+                        this.updatePrefixState(prefixType);
                     }
                 }
                 this.menu.classList.add('hidden');
@@ -107,29 +141,17 @@ export class IdeaInput {
             }
         });
 
-
-
-        // Update checkmarks in menu
-        this.updateMenuChecks = () => {
-            const buttons = this.menu.querySelectorAll('button[data-prefix]');
-            buttons.forEach(btn => {
-                const checkSpan = btn.querySelector('.checkmark');
-                if (btn.dataset.prefix === this.selectedPrefix && (btn.dataset.prefix === 'newline' || btn.dataset.prefix === 'paragraph')) {
-                    checkSpan.innerHTML = `<svg class="inline w-4 h-4 text-blue-500" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>`;
-                } else if (btn.dataset.prefix === 'endtext' && this.endTextActive) {
-                    checkSpan.innerHTML = `<svg class="inline w-4 h-4 text-blue-500" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>`;
-                } else {
-                    checkSpan.innerHTML = '';
-                }
-            });
-        };
-
         // Insert elements
-        this.form.appendChild(this.input);
-        this.form.appendChild(this.plusBtn);
+        this.inputWrapper.appendChild(this.prefix);
+        this.inputWrapper.appendChild(this.caret);
+        this.inputWrapper.appendChild(this.input);
+        this.inputWrapper.appendChild(this.plusBtn);
+        this.form.appendChild(this.inputWrapper);
         this.form.appendChild(this.menu);
         this.wrapper.appendChild(this.form);
-        this.container.appendChild(this.wrapper);
+        // new ideas are added to the top of the container.
+        this.container.insertBefore(this.wrapper, this.container.firstChild);
+        // this.container.appendChild(this.wrapper);
 
         if (autoFocus) this.input.focus();
     }
