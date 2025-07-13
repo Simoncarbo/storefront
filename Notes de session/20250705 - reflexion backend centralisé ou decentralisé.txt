@@ -23,3 +23,6 @@ Communique-t-on toutes les adresses ayant déjà reçu le message pour éviter le re
 ca augmenterait les chances de toucher tout le monde. A voir...
 
 La décentralisation implique aussi de faire confiance aux hôtes. Par exemple, un hôte pourrait recevoir une idée, et utiliser le système de renvoi pour envoyer son idée à qqn d'autre à la place. Après c'est un problème qu'on ne sait pas résoudre. Qqn pourrait avoir deux téléphones et deux comptes également.
+
+Du coup.... Décision?
+On reste sur du décentralisé, on fait confiance au hasard.

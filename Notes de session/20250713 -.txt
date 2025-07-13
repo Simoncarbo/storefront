@@ -1,0 +1,11 @@
+je cloture vite fait la partie overlay. ChatGPT avait implémenté un choix random entre les deux messages (nouveau bout de texte/diffusion d'idées).
+Et puis j'ajouterais bien des images
+
+copilot 1: retirer tirage au sort
+copilot 2: Can you add images to the secondPhaseMessage? "Partage d'idées et nouveau vote" -> icons representing to people talking to each other to symbolize deliberation. "Un nouveau bout de texte va être ajouté!" -> a hammer smashing on a table to symbolize decision making.
+copilot3: I have this source icon for representing the hammer: <a href="https://www.flaticon.com/free-icons/decision" title="decision icons">Decision icons created by juicy_fish - Flaticon</a>, and this one for representing the deliberation: <a href="https://www.flaticon.com/free-icons/discussion" title="discussion icons">Discussion icons created by HAJICON - Flaticon</a>. Can you use these instead of the SVGs you created?
+
+chatgpt: I don't want to use flaticon. The images that appear on my site are not the ones I expect. And I don't want to have to include attribution
+The svg do not display as expected. Could there be a problem with alignement or space?
+
+après plein de tentatives, pas réussi à ajouter des icons/images :((( C'était vraiment badant.

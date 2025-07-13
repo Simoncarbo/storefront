@@ -1,5 +1,3 @@
-import { startCountdown } from './vote_process.js';
-
 export function CoopiaSocketOnMessage(e, CoopiaSocket, IdeasManager, chatLogCommon) {
     const data = JSON.parse(e.data);
 
@@ -9,30 +7,7 @@ export function CoopiaSocketOnMessage(e, CoopiaSocket, IdeasManager, chatLogComm
         // Check if the idea is already present
         if (!IdeasManager.isIdeaPresent(data.message)) {
             IdeasManager.addInput(data.message)
-        } else {
-            // Send the message back through the WebSocket
-            CoopiaSocket.send(e.data);
         }
-    } else if (data.type === 'roundinfo') {
-        // Set the task description if provided
-        if (data.task_description !== undefined) {
-            document.getElementById('task-description').textContent = data.task_description;
-        }
-        
-        IdeasManager.reset();
-
-        // Start countdown
-        if (data.round_duration) {
-            startCountdown(data.round_duration);
-        }
-    } else if (data.type === 'request_vote') {
-        // Find the selected radio value
-        const value = ideasManager.getSelectedIdeaValue();
-        CoopiaSocket.send(JSON.stringify({
-            type: "vote.response",
-            request_id: data.request_id,
-            value: value
-        }));
     } else {
         console.error('Unknown message type:', data.type);
     }

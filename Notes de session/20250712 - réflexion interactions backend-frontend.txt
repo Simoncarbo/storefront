@@ -1,0 +1,8 @@
+Reflexion séparation backend-frontend
+
+Backend <-> frontend
+-> state of process (has started?)
+<- send vote
+-> send countdown
+-> send vote result and inspiration level
+-> send idea diffusion

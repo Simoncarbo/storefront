@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voting Process App</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <script type="module" src="{% static 'js/vote_process.js' %}"></script>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen">
+    <div class="bg-white p-6 rounded-lg shadow-md w-96">
+        <h1 class="text-2xl font-bold mb-4">Vote for Your Idea</h1>
+        <div id="idea-container" class="mb-4">
+            <!-- Ideas will be dynamically inserted here -->
+        </div>
+        <button id="vote-button" class="bg-blue-500 text-white px-4 py-2 rounded">Envoyer vote</button>
+        <div id="status" class="mt-4 text-gray-700"></div>
+    </div>
+    <script>
+        const voteProcessUI = new VoteProcessUI();
+        voteProcessUI.init();
+    </script>
+</body>
+</html>
