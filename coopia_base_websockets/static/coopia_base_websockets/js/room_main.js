@@ -29,7 +29,7 @@ const button_container = document.querySelector('#vote-button');
 const voteButton = new VoteButton(button_container, coopiaSocket, ideasManager);
 
 // Example usage:
-voteButton.updateVoteStatus('waiting');
+// voteButton.updateVoteStatus('waiting');
 // voteButton.updateVoteStatus('countdown', 15);
 // voteButton.updateVoteStatus('');
 
@@ -38,7 +38,7 @@ const overlay = new OverlayMessage(); // Default message
 
 // To show the overlay
 // overlay.showWithPhases('decision'); // or overlay.show("Un autre message...")
-overlay.showWithPhases('propagation');
+// overlay.showWithPhases('propagation');
 
 // To hide the overlay
 // overlay.hide();

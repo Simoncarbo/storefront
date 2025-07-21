@@ -8,7 +8,7 @@ export class VoteButton {
         this.voteButton.className = 'btn btn-primary ml-2';
 
         // Style the button
-        this.voteButton.style.marginTop = '24px';
+        // this.voteButton.style.marginTop = '15px';
         this.voteButton.style.backgroundColor = '#f0f4ff';
         this.voteButton.style.border = '2px solid #b3c6ff';
         this.voteButton.style.borderRadius = '8px';
@@ -22,7 +22,7 @@ export class VoteButton {
         this.voteContainer.style.display = 'flex';
         this.voteContainer.style.alignItems = 'flex-end';
         this.voteContainer.style.gap = '16px';
-        this.voteContainer.style.marginTop = '24px';
+        this.voteContainer.style.marginTop = '15px';
 
         // Create status text
         this.voteStatusText = document.createElement('span');
@@ -68,10 +68,10 @@ export class VoteButton {
             
             const selectedIdea = this.ideasManager.getSelectedIdeaValue();
             
-            // this.coopiaSocket.send(JSON.stringify({
-            //     type: 'vote',
-            //     idea: selectedIdea
-            // }));
+            this.coopiaSocket.send(JSON.stringify({
+                type: 'vote',
+                idea: selectedIdea
+            }));
             this.updateVoteStatus('waiting');
             
         };

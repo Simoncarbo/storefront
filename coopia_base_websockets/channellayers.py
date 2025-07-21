@@ -30,11 +30,16 @@ class ChannelLayerForCoopiaProcess(InMemoryChannelLayer):
         # Check the inputs
         #self.require_valid_group_name(group_name)
         if group_name in self.coopia_processes:
+            # if not self.coopia_processes[group_name].is_running:
+            #     # If the process is not running, we can start it
+            #     await self.coopia_processes[group_name].start()
             return  # process already created for this group
         else:
             coopia_process = CoopiaProcess(group_name)
             # Add to group dict
             self.coopia_processes[group_name] = coopia_process
+        
+        # await self.coopia_processes[group_name].start()
 
     async def discard_coopia_process(self, group_name):
         # to be implemented

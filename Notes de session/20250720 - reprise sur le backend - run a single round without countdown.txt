@@ -1,0 +1,27 @@
+on commence par virer self.participants dans coopia process car ca ne sert a rien de dupliquer l'info qui est déjà dans le channel layer.
+
+ensuite on crée self.channel_layer pour coopia process ainsi on n'appelle pas sytématiquement get_channel_layer()
+
+Il y a un bug que je ne comprends pas.
+console backend: Application instance <Task pending name='Task-55' coro=<ASGIStaticFilesHandler.__call__() running at C:\Users\sicarbonn
+ell\.virtualenvs\coopia-bjMXJjWV\Lib\site-packages\django\contrib\staticfiles\handlers.py:101> wait_for=<Future pending
+ cb=[shield.<locals>._outer_done_callback() at C:\Users\sicarbonnell\AppData\Local\Programs\Python\Python312\Lib\asynci
+o\tasks.py:922, Task.task_wakeup()]>> for connection <WebSocketProtocol client=['127.0.0.1', 52152] path=b'/ws/coopiaba
+sewebsockets/test/'> took too long to shut down and was killed.
+console frontend: websoecket closed unexpectedly
+
+j'ai ajouté async-to-sync au niveau du consumer pour add_idea. (mais au fond le bug arrive déjà avant? yes...)
+
+utiliser un websocket consumer normal ne devrait pas poser probleme: 
+"asynchronous consumers can provide a higher level of performance since they don’t need to create additional threads when handling requests." -> pas nécessaire
+
+si je retire l'appel de start() dans channel_layer, pas de bug. par contre bug quand je clique sur envoyer vote.
+async_to_sync(self.coopia_process.add_idea)(self.channel_name,idea)
+TypeError: object NoneType can't be used in 'await' expression
+
+j'ai ajouté async def pour coopia process add idea et ca marche. (toujours sans le start)
+
+when to use await or asyncio.create_task? create task permet scheduling. PAs sur de comprendre mais ca n'a pas l'air important ici.
+
+j'ai remis le start dans channel_layer add copoia process et ca rebug... Bizarre bizarre.
+

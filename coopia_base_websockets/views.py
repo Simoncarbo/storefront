@@ -4,6 +4,8 @@ from django.http import JsonResponse
 import json
 from .channellayers import ChannelLayerForCoopiaProcess
 
+from asgiref.sync import async_to_sync
+
 
 # Create your views here.
 
@@ -43,7 +45,7 @@ def room_admin_action(request, room_name):
         if not process:
             return JsonResponse({"error": "No process found for this room"}, status=404)
         if action == "start":
-            process.start(task_description,next_round_duration=duration, next_round_nb_idea_promotions=nb_promotions)
+            async_to_sync(process.start)()
         elif action == "pause":
             process.pause()
         elif action == "resume":

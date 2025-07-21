@@ -19,7 +19,7 @@ export class IdeasManager {
         this.inspirationRadio.id = 'inspiration-radio';
         const inspirationLabel = document.createElement('label');
         inspirationLabel.htmlFor = 'inspiration-radio';
-        inspirationLabel.textContent = " Je manque d'inspiration. Envoyez-moi des idées et effectuons un nouveau vote.";
+        inspirationLabel.textContent = " Envoyez-moi des idées et effectuons un nouveau vote.";
 
         // Insert at the top of the container
         this.container.appendChild(this.inspirationRadio);

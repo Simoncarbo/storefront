@@ -3,8 +3,6 @@ import json
 
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
-from channels.layers import get_channel_layer
-import random
 
 
 class ChatConsumer(WebsocketConsumer):
@@ -33,15 +31,9 @@ class ChatConsumer(WebsocketConsumer):
     # Receive message from WebSocket
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        if text_data_json.get("type") == "vote.response":
-            request_id = text_data_json["request_id"]
-            value = text_data_json["value"]
-            self.coopia_process.receive_vote(request_id, value)
-        else:
-            message = text_data_json["message"]
-            excluded_participants = text_data_json.get("excluded_participants", []) # default value: []
-
-            self.coopia_process.promote_idea(excluded_participants+[self.channel_name], message)
+        if text_data_json.get("type") == "vote":
+            idea = text_data_json["idea"]
+            async_to_sync(self.coopia_process.add_idea)(self.channel_name,idea)
 
     
     def send_promoted_idea(self, event):
