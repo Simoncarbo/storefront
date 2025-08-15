@@ -50,6 +50,10 @@ class CoopiaProcess(object):
         self.task_description = None
 
         self.ideas = {}  # Dictionary to store ideas with their source
+        self.participants = []
+        self.vote_percentage = 0.0
+
+        self.simulated_processing_time = 3
 
 
     async def start(self, task_description='', next_round_duration=25, next_round_nb_idea_promotions=4):
@@ -119,12 +123,38 @@ class CoopiaProcess(object):
             except Exception as e:
                 print(f"Error saving process info: {e}")
 
+    async def update_participants(self, participants):
+        self.participants = participants
+        await self.update_vote_percentage()
+
     async def add_idea(self, channel_name, idea):
         """
         Add an idea to the process.
         """
         self.ideas[channel_name]=idea
         print(self.ideas)
+    
+        await self.update_vote_percentage()
+    
+    async def reset_ideas(self):
+        self.ideas = {}
+        await self.update_vote_percentage()
+
+    async def update_vote_percentage(self):
+        # remove ideas associated to users that are not in self.participants
+        self.ideas = {k: v for k, v in self.ideas.items() if k in self.participants}
+
+        self.vote_percentage = len(self.ideas) / len(self.participants) if self.participants else 0
+        print(self.vote_percentage)
+
+        # Broadcast the updated vote percentage to all participants
+        await self.channel_layer.group_send(
+            self.group_name,
+            {
+                "type": "send.vote_percentage",
+                "vote_percentage": round(self.vote_percentage*100)
+            }
+        )
 
     def get_random_idea(self):
         """
@@ -133,20 +163,28 @@ class CoopiaProcess(object):
         if self.ideas:
             return random.choice(list(self.ideas.values()))
         return None
-
-    def promote_idea(self, excluded_participants, idea):
+            
+    async def idea_diffusion(self, ideas):
         """
-        Promote a idea by sending it to a random participant.
-
-        excluded_participants: List of channel_names to exclude from the random selection.
+        Send to each member of the group two randomly selected ideas (excluding their own).
         """
-        if len(excluded_participants)<=self.nbtrials_promote_idea:
-            # If the first 5 participants to receive the idea had it already, stop trying to send this idea
-            async_to_sync(self.channel_layer.random_send)(
-                self.group_name,excluded_participants,{"type": "send.promoted.idea", 
-                                                    "message": idea, 
-                                                    "excluded_participants":excluded_participants}
-                )
+        print("Diffusing ideas to participants...")
+        participants = list(self.channel_layer.groups[self.group_name].keys())
+        for participant in participants:
+            # Exclude the participant's own idea
+            other_ideas = [idea for sender, idea in ideas.items() if sender != participant]
+            # Exclude ideas that are empty or none
+            other_ideas = [idea for idea in other_ideas if idea and idea.strip()]
+            # Select up to two random ideas
+            selected_ideas = random.sample(other_ideas, min(4, len(other_ideas)))
+            print(selected_ideas)
+            await self.channel_layer.send(
+                participant,
+                {
+                    "type": "send.diffused.ideas",
+                    "ideas": selected_ideas
+                }
+            )
 
     async def broadcast_voting_result(self, result):
         """
@@ -168,8 +206,8 @@ class CoopiaProcess(object):
 
             # Run a round of the CoopiaProcess
             await self.run_round()
-            self.finish(save=False) 
             self.current_round_index += 1
+        self.finish(save=False) 
 
     async def run_round(self):
         """
@@ -177,36 +215,45 @@ class CoopiaProcess(object):
         Waits for all participants to submit their ideas, then broadcasts a randomly selected idea.
         """
         round_start_time = datetime.datetime.now()
-        self.ideas = {}  # Reset ideas for this round
+
+        if self.current_round_index !=0:
+            # Reset ideas for this round
+            await self.reset_ideas()
 
         # Wait for all participants to submit their ideas or until round duration expires
         timeout = self.max_duration
         start_time = time.time()
         
-        participants_old = []
         while True:
-            participants = list(self.channel_layer.groups[self.group_name].keys())
-            if participants_old!=participants:
-                print((participants))
             # You need to define participants as a list of channel_names
-            if participants is not None and set(self.ideas.keys()) >= set(participants):
+            if self.participants is not None and self.vote_percentage==1.:
                 break
             if time.time() - start_time > timeout:
                 break
             await asyncio.sleep(0.5)  # Polling interval
-            participants_old = participants
+
+            if self.is_finished:
+                return
 
         # Select a random idea and broadcast it
         selected_idea = self.get_random_idea()
         print(selected_idea)
-        if selected_idea:
-            await self.channel_layer.group_send(
-                self.group_name,
-                {
-                    "type": "send.result",
-                    "message": selected_idea
-                }
-            )
+
+        self.result += selected_idea
+        print(self.result)
+
+        await self.channel_layer.group_send(
+            self.group_name,
+            {
+                "type": "send.result",
+                "message": selected_idea,
+                "simulated_processing_time": self.simulated_processing_time
+            }
+        )
+
+        if selected_idea == '':
+            await asyncio.sleep(self.simulated_processing_time)  # simulate processing time
+            await self.idea_diffusion(self.ideas)
 
         round_end_time = datetime.datetime.now()
         # Optionally, log round info

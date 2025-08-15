@@ -58,6 +58,9 @@ export class ChatLogCommon {
     }
 
     appendMessage(message) {
+        if (message.trim() === '') {
+            return; // Do not append empty messages
+        }
         this.clearPlaceholder();
         // Split message by \n and append each part with <br> in between
         const lines = message.split("\\n");

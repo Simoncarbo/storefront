@@ -6,14 +6,16 @@
     <title>Chat Room</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-white min-h-screen flex flex-col items-center p-6">
-    <div class="w-full max-w-2xl bg-white p-6">
+<body class="bg-white min-h-screen flex flex-col items-center px-2 sm:px-4 md:px-6 py-4">
+    <div class="w-full max-w-full sm:max-w-2xl bg-white px-2 sm:px-4 md:px-6 py-4">
         <!-- Task Description -->
         <div id="task-description"
             class="w-full mb-4 px-2 py-1 text-gray-700 text-base font-serif leading-relaxed text-left"
             style="word-break:break-word; white-space:pre-line; min-height:2em;">
         </div>
-
+        <div id="participant-count" class="text-gray-500 text-sm mt-4 text-right">
+            <!-- Container for participants count -->
+        </div>
         <div id="chat-log-common" 
             class="w-full p-2 rounded-lg mb-4 resize-none whitespace-pre-wrap font-mono min-h-[2em] leading-snug text-left text-indent-0">
         </div>

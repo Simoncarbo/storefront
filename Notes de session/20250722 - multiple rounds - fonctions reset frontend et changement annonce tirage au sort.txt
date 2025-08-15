@@ -1,0 +1,33 @@
+TODO: 
+- afficher le nombre de participants?
+- synchroniser l'état du process avec clients? (running vs pause vs not running + result + nb participants)
+- multiple rounds
+- finish by user
+- idea diffusion
+- tester sur smartphone
+
+Je commence par implem le reset frontend après un round
+Deux formes de reset:
+- avec ou sans partage d'idées
+
+ok cé fait. Donc j'appelle reset pour vote button et ideasManager lorsque je reçois un message de type "common". Si le message est vide, alors je nne reset pas ideasManager mais j'ensureEmptyInput(). Ca a l'air cohérent.
+
+J'ai fait le fou et j'ai ajouté l'overlay également.
+
+test avec 3 rounds
+bug car overlay pas transmis
+bug car message vide pas transmis
+bug car le nouveau message est affiché alors que l'overlay n'est pas encore parti
+
+copilot: I want the program to wait for the overlay phases to finish before continuing to run. For example, chatLogCommon.appendMessage(data.message) should run after overlay.showWithPhases() is finished
+To achieve this, you should make showWithPhases return a Promise that resolves after the overlay phases are finished. Then, in your handler, use await to wait for it before running the next code.
+
+okkk ca marche
+bon les overlay c'est pas ouf finalement. Je les retire.
+bug quand reset est appelé avant append_message?
+
+
+copilot add a statusType 'tirage' which displays a message "Tirage au sort en cours"
+
+
+

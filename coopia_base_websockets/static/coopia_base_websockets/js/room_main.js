@@ -20,9 +20,6 @@ const coopiaSocket = new WebSocket(
 );
 const ideasManager = new IdeasManager(document.getElementById('idea-inputs'),chatLogCommon);
 
-coopiaSocket.onmessage = e => CoopiaSocketOnMessage(e, coopiaSocket, ideasManager,chatLogCommon);
-coopiaSocket.onclose = e => console.error('Socket closed unexpectedly');
-
 
 // Vote button functionality
 const button_container = document.querySelector('#vote-button');
@@ -42,3 +39,6 @@ const overlay = new OverlayMessage(); // Default message
 
 // To hide the overlay
 // overlay.hide();
+
+coopiaSocket.onmessage = e => CoopiaSocketOnMessage(e, coopiaSocket, ideasManager,chatLogCommon,voteButton, overlay);
+coopiaSocket.onclose = e => console.error('Socket closed unexpectedly');

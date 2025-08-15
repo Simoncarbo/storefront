@@ -36,7 +36,7 @@ export class VoteButton {
         this.voteContainer.appendChild(this.voteStatusText);
 
         // Insert container
-        targetElement.parentNode.appendChild(this.voteContainer);
+        targetElement.appendChild(this.voteContainer);
 
         // Inject pulse keyframes once
         if (!document.getElementById('pulse-keyframes-style')) {
@@ -86,6 +86,7 @@ export class VoteButton {
 
         this.voteStatusText.innerHTML = '';
         this.voteStatusText.style.color = '#4a5568'; // Reset color to gray
+        this.voteStatusText.style.animation = '';
 
         if (statusType === 'waiting') {
             const dot = document.createElement('span');
@@ -99,6 +100,14 @@ export class VoteButton {
 
             this.voteStatusText.appendChild(dot);
             this.voteStatusText.appendChild(document.createTextNode('En attente des autres participants'));
+            
+            // Append vote percentage
+            const percentageSpan = document.createElement('span');
+            percentageSpan.id = 'vote_percentage';
+            // percentageSpan.style.marginLeft = '8px';
+            percentageSpan.textContent = ` (?%)`;
+            this.voteStatusText.appendChild(percentageSpan);
+            
 
         } else if (statusType === 'countdown' && typeof secondsRemaining === 'number') {
             this.voteStatusText.style.color = '#e53e3e'; // red for urgency
@@ -115,8 +124,39 @@ export class VoteButton {
                 }
             }, 1000);
 
+        } else if (statusType === 'tirage') {
+            this.voteStatusText.style.color = '#4a90e2'; // blue
+            this.voteStatusText.textContent = 'Tirage au sort en cours';
+            this.voteStatusText.style.animation = 'blink 1s steps(2, start) infinite';
+
+            // Inject blink keyframes once
+            if (!document.getElementById('blink-keyframes-style')) {
+                const style = document.createElement('style');
+                style.id = 'blink-keyframes-style';
+                style.textContent = `
+                @keyframes blink {
+                  0% { opacity: 1; }
+                  50% { opacity: 0; }
+                  100% { opacity: 1; }
+                }`;
+                document.head.appendChild(style);
+            }
         } else {
             this.voteStatusText.textContent = '';
         }
+    }
+
+    reset() {
+        // Re-enable all buttons
+        document.querySelectorAll("button").forEach(el => el.disabled = false);
+        // Re-enable input fields (text, checkbox, radio, etc.)
+        document.querySelectorAll("input").forEach(el => el.disabled = false);
+        // Re-enable textareas
+        document.querySelectorAll("textarea").forEach(el => el.disabled = false);
+        // Re-enable selects
+        document.querySelectorAll("select").forEach(el => el.disabled = false);
+
+        // Clear vote status
+        this.updateVoteStatus('');
     }
 }

@@ -8,7 +8,7 @@ export class IdeasManager {
         this.selectedIndex = null; // Track which input is selected
 
         this.chatLogCommon = chatLogCommon;
-        this.chatLogCommon_prefix_length = 7;
+        this.chatLogCommon_prefix_length = 5;
 
         // Add "Je manque d'inspiration." radio option before addInput
         this.inspirationRadio = document.createElement('input');

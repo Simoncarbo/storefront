@@ -46,4 +46,5 @@ TODO:
 - multiple rounds
 - finish by user
 - idea diffusion
+- tester sur smartphone
 

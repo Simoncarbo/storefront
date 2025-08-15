@@ -1,0 +1,3 @@
+copilot: Provide a clean way to synchronize the number of participants (coopia_process.py) between backend and frontend and display the information to the user
+
+en fait il me propose un truc spécifique au nombre de participants, qui est appelé uniquement à la connexion/déconnexion. C'est plus malin, mais pas compatible avec la synchronisation du nombre de participatns ayant voté, ou le statut du process.

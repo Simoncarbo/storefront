@@ -21,12 +21,34 @@ class ChatConsumer(WebsocketConsumer):
         self.coopia_process = self.channel_layer.coopia_processes[self.room_group_name]
 
         self.accept()
+        self.update_participant_count()
+
+        # send self.coopia_process.result to the user
+        if self.coopia_process.result!='':
+            self.send(text_data=json.dumps({
+                "type": "common_init",
+                "result": self.coopia_process.result
+            }))
 
     def disconnect(self, close_code):
         # Leave room group
         async_to_sync(self.channel_layer.group_discard)(
             self.room_group_name, self.channel_name
         )
+
+        self.update_participant_count()
+    
+    def update_participant_count(self):
+        # update number of members in the group
+        participants = list(self.channel_layer.groups[self.room_group_name].keys())
+        # send info to the users
+        async_to_sync(self.channel_layer.group_send)(self.room_group_name,
+        {
+            "type": "send.participant.count",
+            "count": len(participants)
+        })
+        # send info to the coopia process
+        async_to_sync(self.coopia_process.update_participants)(participants)
 
     # Receive message from WebSocket
     def receive(self, text_data):
@@ -35,9 +57,16 @@ class ChatConsumer(WebsocketConsumer):
             idea = text_data_json["idea"]
             async_to_sync(self.coopia_process.add_idea)(self.channel_name,idea)
 
+    def send_participant_count(self, event):
+        event["type"] = "participant_count"
+        self.send(text_data=json.dumps(event))
     
-    def send_promoted_idea(self, event):
-        event["type"] = "promoted_idea"
+    def send_vote_percentage(self, event):
+        event["type"] = "vote_percentage"
+        self.send(text_data=json.dumps(event))
+
+    def send_diffused_ideas(self, event):
+        event["type"] = "idea_diffusion"
 
         # Send message to WebSocket
         self.send(text_data=json.dumps(event))
@@ -49,22 +78,5 @@ class ChatConsumer(WebsocketConsumer):
         # Send message to WebSocket
         self.send(text_data=json.dumps(event))
 
-    def send_countdown(self, event):
-        """ NOT USED FOR THE MOMENT """
-        event["type"] = "countdown"
 
-        # Send message to WebSocket
-        self.send(text_data=json.dumps(event))
-
-    def send_roundinfo(self, event):
-        event["type"] = "roundinfo"
-
-        # Send message to WebSocket
-        self.send(text_data=json.dumps(event))
     
-    def send_request_vote(self, event):
-        # Send a message to the client to request their selected radio value
-        self.send(text_data=json.dumps({
-            "type": "request_vote",
-            "request_id": event["request_id"],
-        }))

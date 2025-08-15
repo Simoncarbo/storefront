@@ -12,37 +12,46 @@ export class IdeaInput {
 
         // Wrapper styled like an input
         this.inputWrapper = document.createElement('div');
-        this.inputWrapper.className = "flex items-center border border-gray-300 rounded-lg px-2 py-1 pr-10 w-full bg-white relative";
+        this.inputWrapper.className = "flex items-start border border-gray-300 rounded-lg px-2 py-1 pr-10 w-full bg-white relative";
+
 
         // Non-editable prefix
         this.prefix = document.createElement('span');
         this.prefix.textContent = idea_prefix;
         this.prefix.className = "text whitespace-nowrap";
-        this.prefix.style.backgroundColor = '#fff9c0';
+        this.prefix.style.backgroundColor = '#f0f0f0'; // Very light grey
 
-        // Vertical caret (hidden by default)
-        this.caret = document.createElement('div');
-        this.caret.className = "h-5 w-px bg-gray-400 transition-opacity duration-100";
-        this.caret.style.opacity = idea_prefix==='' ? '0' : '1'; // Hide if no prefix
-        this.caret.style.margin = "0"; // Remove horizontal margin
-
-
-        // Editable input
-        this.input = document.createElement('input');
-        this.input.type = 'text';
-        this.input.className = "flex-1 outline-none bg-transparent";
+        this.input = document.createElement('textarea');
+        this.input.className = "flex-1 outline-none bg-transparent resize-none overflow-hidden leading-snug";
         this.input.value = defaultValue;
         this.input.placeholder = " Écris ton idée ici...";
         this.input.autocomplete = "off";
         this.input.maxLength = 200;
+        this.input.rows = 1; // minimum height
+        this.input.style.minHeight = '1.5rem';
+        this.input.style.lineHeight = '1.25rem';
+        this.input.style.verticalAlign = 'middle'; // Align with sibling inline elements
+        this.input.style.paddingTop = '0.1rem';   // Slight adjustment (tweak as needed)
+        this.input.style.paddingBottom = '0.1rem';
+        this.input.style.margin = '0';            // Remove default margin
+
         if (autoFocus) this.input.focus();
 
-        // Prevent Enter key from submitting input
+        // Prevent Enter key (no multi-line allowed)
         this.input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
             }
         });
+
+        // Auto-resize height to fit content
+        const resizeTextarea = () => {
+            this.input.style.height = 'auto'; // reset first
+            this.input.style.height = this.input.scrollHeight + 'px';
+        };
+        this.input.addEventListener('input', resizeTextarea);
+        setTimeout(resizeTextarea, 0); // initial resize after DOM render
+
 
         this.plusBtn = document.createElement('button');
         this.plusBtn.type = 'button';
@@ -69,10 +78,12 @@ export class IdeaInput {
                 Dans un nouveau paragraphe
             </button>
             <div class="w-full border-t border-gray-200 my-1"></div>
+            <!--
             <button type="button" class="flex items-center w-full text-left px-4 py-2 hover:bg-gray-100 rounded-b-lg" data-prefix="endtext">
                 <span class="checkmark w-5 mr-2"></span>
                 Fin du texte
             </button>
+            -->
         `;
 
         this.selectedPrefix = null; // 'newline', 'paragraph', or null
@@ -99,6 +110,17 @@ export class IdeaInput {
                 }
             });
         };
+
+        // console.log('IdeaInput initialized with defaultValue:', defaultValue);
+        // adjust prefixState based on defaultValue
+        if (defaultValue.startsWith('\n\n')) {
+            this.updatePrefixState('paragraph');
+        } else if (defaultValue.startsWith('\n')) {
+            this.updatePrefixState('newline');
+        }
+        // remove any occurrence of /n in the default value of the input text
+        this.input.value = defaultValue.replace(/\n/g, '');
+
 
         // Helper to toggle end of text marker (no text modification here, just state)
         this.toggleEndText = () => {
@@ -143,7 +165,6 @@ export class IdeaInput {
 
         // Insert elements
         this.inputWrapper.appendChild(this.prefix);
-        this.inputWrapper.appendChild(this.caret);
         this.inputWrapper.appendChild(this.input);
         this.inputWrapper.appendChild(this.plusBtn);
         this.form.appendChild(this.inputWrapper);

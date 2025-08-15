@@ -17,41 +17,46 @@ export class OverlayMessage {
     }
 
     showWithPhases(resultType, phase1Delay = 3000, totalDelay = 6000) {
-        const initialMessage = "Tirage au sort en cours...";
-        let secondPhaseMessage = "";
+        return new Promise((resolve) => {
+            const initialMessage = "Tirage au sort en cours...";
+            let secondPhaseMessage = "";
 
-        if (resultType === 'propagation') {
-            secondPhaseMessage = `
-            <div style="text-align: center; font-family: sans-serif;">
-                <div style="margin-bottom: 12px;">
-                Diffusion d'idées et nouveau vote.
+            if (resultType === 'propagation') {
+                secondPhaseMessage = `
+                <div style="text-align: center; font-family: sans-serif;">
+                    <div style="margin-bottom: 12px;">
+                    Diffusion d'idées et nouveau vote.
+                    </div>
                 </div>
-            </div>
-            `;
-        } else if (resultType === 'decision') {
-            secondPhaseMessage = `
-            <div style="text-align:center; font-family:sans-serif;">
-                <div style="margin-bottom: 12px;">
-                Un nouveau bout de texte va être ajouté!
+                `;
+            } else if (resultType === 'decision') {
+                secondPhaseMessage = `
+                <div style="text-align:center; font-family:sans-serif;">
+                    <div style="margin-bottom: 12px;">
+                    Un nouveau bout de texte va être ajouté!
+                    </div>
                 </div>
-            </div>
-            `;
-        }
+                `;
+            }
 
-        this.clearTimers();
+            this.clearTimers();
 
-        // Phase 1
-        this.show(initialMessage);
+            // Phase 1
+            this.show(initialMessage);
 
-        // Phase 2 (after phase1Delay)
-        const secondPhaseId = setTimeout(() => {
-            this.textBox.innerHTML = secondPhaseMessage;
-        }, phase1Delay);
-        this.timeoutIds.push(secondPhaseId);
+            // Phase 2 (after phase1Delay)
+            const secondPhaseId = setTimeout(() => {
+                this.textBox.innerHTML = secondPhaseMessage;
+            }, phase1Delay);
+            this.timeoutIds.push(secondPhaseId);
 
-        // Hide after totalDelay
-        const hideId = setTimeout(() => this.hide(), totalDelay);
-        this.timeoutIds.push(hideId);
+            // Hide after totalDelay
+            const hideId = setTimeout(() => {
+                this.hide();
+                resolve();
+            }, totalDelay);
+            this.timeoutIds.push(hideId);
+        });
     }
 
     show(message = null) {
