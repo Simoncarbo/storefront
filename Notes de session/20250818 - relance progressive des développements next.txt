@@ -3,7 +3,6 @@ TODO plus long terme:
 - moment d'inspiration individuelle unique et systématique avant le tirage au sort
 - chrono plutôt que attente de tous les votes
 - résoudre bug de connexion smartphone
-- changement de couleur bouton de vote quand cliqué
 
 
 toujours pour le premier point:
@@ -19,3 +18,16 @@ ca serait cool de changer la couleur du bouton en fonction de l'étape.
 Ca sera pour une autre fois.
 Ok pour retirer l'option je manque d'inspi
 -> je load sur github
+
+
+Je passe à la résolution du bug pour smartphone.
+
+chatgpt:
+I'm using Django Channels (based on Websockets) in my app. When testing it on a smartphone browser, the websocket connection sometimes closes unexpectedly. I've read some blogs and Q&A, and it seems that too long inactivity can make the connection end. Is this correct? How can I solve this problem such that the connection persists when there is inactivity?
++ yes, i want you to show how to enable native WebSocket ping/pong frames in Django Channels with Daphne
+Faire le native a l'air compliqué car daphne et implicitement lancé par manage.py runserver et moi je n'ai pas accès aux options pour gérer les ping
+Donc je pars sur la version manuelle et moins propre.
+ChatGPT me propose toute une fonction avec également une fonctionnalité de reconnection automatique :) Cool! Comment la tester? Faudrait une connection wifi...
+En tout cas le code fonctionne, avec reconnection quand il y a un bug dans le code :)
+C'est déjà une bonne étape!!
+
