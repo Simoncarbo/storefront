@@ -1,0 +1,21 @@
+TODO plus long terme:
+
+- moment d'inspiration individuelle unique et systématique avant le tirage au sort
+- chrono plutôt que attente de tous les votes
+- résoudre bug de connexion smartphone
+- changement de couleur bouton de vote quand cliqué
+
+
+j'implemente le premier point
+
+au moment de le tester j'ai de nouveau le bug avec pipenv qui ne se lance pas automatiquement. Je trouve comment le lancer automatiquement mais message d'erreur quand j'ouvre un nouveau terminal
+solution ici? https://stackoverflow.com/questions/4037939/powershell-says-execution-of-scripts-is-disabled-on-this-system
+
+
+
+OK le moment d'inspiration individuelle unique et systématique avant le tirage au sort fonctionne.
+
+
+
+travail vite fait pour bouton de vote changement de couleur
+ca marche aussi :)

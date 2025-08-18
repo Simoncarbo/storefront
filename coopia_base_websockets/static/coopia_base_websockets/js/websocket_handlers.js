@@ -9,6 +9,7 @@ export async function CoopiaSocketOnMessage(e, CoopiaSocket, ideasManager, chatL
         // sleep for 3 seconds to simulate processing
         await new Promise(resolve => setTimeout(resolve, data.simulated_processing_time *1000));
         chatLogCommon.appendMessage(data.message);
+        voteButton.setVoteButtonText('Envoyer l\'idée pour l\'étape d\'inspiration');
         voteButton.reset();
         if (data.message!== '') {
             // await overlay.showWithPhases('decision');
@@ -42,6 +43,8 @@ export async function CoopiaSocketOnMessage(e, CoopiaSocket, ideasManager, chatL
                 }
             }
         }
+        voteButton.setVoteButtonText('Envoyer l\'idée pour le tirage au sort');
+        voteButton.reset();
     } else {
         console.error('Unknown message type:', data.type);
     }

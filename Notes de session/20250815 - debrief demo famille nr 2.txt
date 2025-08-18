@@ -1,0 +1,9 @@
+voir notes.
+
+Suite splittée en deux idées:
+
+- version ludique écriture d'histoire avec timer temps réel
+
+- version respondable avec fil d'actualité quotidien
+un fil d'actualité politique au service de la créativité
+un processus collaboratif à responsabilité partagée

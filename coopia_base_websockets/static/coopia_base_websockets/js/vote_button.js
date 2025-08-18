@@ -4,7 +4,7 @@ export class VoteButton {
         this.ideasManager = ideasManager;
 
         this.voteButton = document.createElement('button');
-        this.voteButton.textContent = 'Envoyer vote';
+        this.voteButton.textContent = 'Envoyer l\'idée pour l\'étape d\'inspiration';
         this.voteButton.className = 'btn btn-primary ml-2';
 
         // Style the button
@@ -65,6 +65,11 @@ export class VoteButton {
             document.querySelectorAll("textarea").forEach(el => el.disabled = true);
             // Disable selects
             document.querySelectorAll("select").forEach(el => el.disabled = true);
+
+            // Change voteButton color to indicate it's disabled
+            this.voteButton.style.backgroundColor = '#d1d5db'; // light gray
+            this.voteButton.style.border = '2px solid #a0aec0'; // gray border
+            this.voteButton.style.color = '#888';
             
             const selectedIdea = this.ideasManager.getSelectedIdeaValue();
             
@@ -75,6 +80,10 @@ export class VoteButton {
             this.updateVoteStatus('waiting');
             
         };
+    }
+
+    setVoteButtonText(text) {
+        this.voteButton.textContent = text;
     }
 
     updateVoteStatus(statusType, secondsRemaining = null) {
@@ -158,5 +167,10 @@ export class VoteButton {
 
         // Clear vote status
         this.updateVoteStatus('');
+
+    // Reset voteButton color to original
+    this.voteButton.style.backgroundColor = '#f0f4ff';
+    this.voteButton.style.border = '2px solid #b3c6ff';
+    this.voteButton.style.color = '';
     }
 }

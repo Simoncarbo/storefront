@@ -10,21 +10,6 @@ export class IdeasManager {
         this.chatLogCommon = chatLogCommon;
         this.chatLogCommon_prefix_length = 5;
 
-        // Add "Je manque d'inspiration." radio option before addInput
-        this.inspirationRadio = document.createElement('input');
-        this.inspirationRadio.type = 'radio';
-        this.inspirationRadio.name = this.radioName;
-        this.inspirationRadio.value = '';
-        this.inspirationRadio.className = "mr-2 scale-150";
-        this.inspirationRadio.id = 'inspiration-radio';
-        const inspirationLabel = document.createElement('label');
-        inspirationLabel.htmlFor = 'inspiration-radio';
-        inspirationLabel.textContent = " Envoyez-moi des idées et effectuons un nouveau vote.";
-
-        // Insert at the top of the container
-        this.container.appendChild(this.inspirationRadio);
-        this.container.appendChild(inspirationLabel);
-
         this.addInput('', true, true);
     }
 
@@ -78,10 +63,6 @@ export class IdeasManager {
 
     // Get the value of the selected idea (radio)
     getSelectedIdeaValue() {
-        // Check if the inspirationRadio is selected
-        if (this.inspirationRadio.checked) {
-            return this.inspirationRadio.value; // which is ''
-        }
         const selected = this.instances[this.selectedIndex];
         if (selected) {
             // Set radio value to current input value before returning

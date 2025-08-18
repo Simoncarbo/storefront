@@ -164,7 +164,7 @@ class CoopiaProcess(object):
             return random.choice(list(self.ideas.values()))
         return None
             
-    async def idea_diffusion(self, ideas):
+    async def individual_inspiration(self, ideas):
         """
         Send to each member of the group two randomly selected ideas (excluding their own).
         """
@@ -224,10 +224,16 @@ class CoopiaProcess(object):
         timeout = self.max_duration
         start_time = time.time()
         
+        individual_inspiration_done = False
         while True:
             # You need to define participants as a list of channel_names
             if self.participants is not None and self.vote_percentage==1.:
-                break
+                if not individual_inspiration_done:
+                    await self.individual_inspiration(self.ideas)
+                    await self.reset_ideas()
+                    individual_inspiration_done = True
+                else:
+                    break
             if time.time() - start_time > timeout:
                 break
             await asyncio.sleep(0.5)  # Polling interval
@@ -250,10 +256,6 @@ class CoopiaProcess(object):
                 "simulated_processing_time": self.simulated_processing_time
             }
         )
-
-        if selected_idea == '':
-            await asyncio.sleep(self.simulated_processing_time)  # simulate processing time
-            await self.idea_diffusion(self.ideas)
 
         round_end_time = datetime.datetime.now()
         # Optionally, log round info
