@@ -39,6 +39,9 @@ class ChatConsumer(WebsocketConsumer):
         self.update_participant_count()
     
     def update_participant_count(self):
+        # don't do anything if there's no one in the group anymore
+        if self.channel_layer.groups[self.room_group_name] is None:
+            return
         # update number of members in the group
         participants = list(self.channel_layer.groups[self.room_group_name].keys())
         # send info to the users
@@ -47,11 +50,11 @@ class ChatConsumer(WebsocketConsumer):
             "type": "send.participant.count",
             "count": len(participants)
         })
-        # send info to the coopia process
-        async_to_sync(self.coopia_process.update_participants)(participants)
 
     # Receive message from WebSocket
     def receive(self, text_data):
+        if text_data == 'ping':
+            return
         text_data_json = json.loads(text_data)
         if text_data_json.get("type") == "vote":
             idea = text_data_json["idea"]

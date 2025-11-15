@@ -1,8 +1,0 @@
-copilot: code run_round function, which waits for all participants of the group to send their idea (through add_idea) and then broadcasts to the group one randomly selected idea
-
-j'ai galéré avec les async. finalement CoopiaProcess.start() est appelé dans channellayers.py (pour que ca soit async)
-
-il y a encore des bugs bizarres...
-j'ai déjà envoyé genre 5 messages a copilot
-
-je pense qu'il y a des bugs liés à quand CoopiaProcess start et la liste des participants qui ne s'adapte pas quand je fais un refresh alors que ca a déjà démarré.

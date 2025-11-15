@@ -1,6 +1,0 @@
-ca marche!
-
-il fallait mettre la logique d'interprétation des \n dans result_output (appendMessage).
-Je me trompais aussi régulièrement entre /n et \n.
-
-J'ai aussi du ajouter une fonction getValue() dans IdeaInput qui rajoute les /n uniquement au moment où on requiert l'input text.

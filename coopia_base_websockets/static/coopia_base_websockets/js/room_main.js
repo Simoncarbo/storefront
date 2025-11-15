@@ -29,7 +29,7 @@ function connectWebSocket() {
                 if (ws.readyState === WebSocket.OPEN) {
                     ws.send("ping");
                 }
-            }, 20000);
+            }, 10000);
         };
 
         // ws.onmessage = (event) => {
@@ -44,7 +44,7 @@ function connectWebSocket() {
 
         ws.onerror = (error) => {
             console.error("WebSocket error:", error);
-            ws.close();
+            // ws.close();
         };
     }
 

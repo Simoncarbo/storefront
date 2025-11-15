@@ -1,6 +1,0 @@
-On va commencer par tester d'exporter la classe ChatInput
-
-chatGPT me disait pas qu'il fallait ajouter {% load static} pour que ca marche
-
-j'ai lancé le test, mais ca bug: l'IdeaInput ne s'affiche pas, et Admin ne sait pas lancer le process (no process found)
--> a debugger. Mais comment?

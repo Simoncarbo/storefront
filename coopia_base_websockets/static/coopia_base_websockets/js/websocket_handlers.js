@@ -5,9 +5,6 @@ export async function CoopiaSocketOnMessage(e, CoopiaSocket, ideasManager, chatL
         chatLogCommon.setContent(data.result);
         ideasManager.reset(); // pour avoir les prefix adéquats
     } else if (data.type === 'common') {
-        voteButton.updateVoteStatus('tirage');
-        // sleep for 3 seconds to simulate processing
-        await new Promise(resolve => setTimeout(resolve, data.simulated_processing_time *1000));
         chatLogCommon.appendMessage(data.message);
         voteButton.setVoteButtonText('Envoyer l\'idée pour l\'étape d\'inspiration');
         voteButton.reset();
