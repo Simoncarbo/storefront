@@ -1,7 +1,7 @@
-export class ChatLogCommon {
+export class ProcessResultDisplay {
     constructor(logElement, initial_text = '') {
         this.logElement = logElement;
-        this.placeholderText = "Ici se construit le texte collaboratif, un bout à la fois.";
+        this.placeholderText = "Ici se construit le texte collaboratif.";
         this.placeholderSpan = null;
         this.hasAppendedMessage = false;
         this.setContent(initial_text);
@@ -62,23 +62,22 @@ export class ChatLogCommon {
             return; // Do not append empty messages
         }
         this.clearPlaceholder();
-        // Split message by \n and append each part with <br> in between
-        const lines = message.split("\\n");
-        lines.forEach((line, idx) => {
+        // Split message by actual newline and append each part with <br> after each line
+        const lines = message.split('\n');
+        lines.forEach((line) => {
             const messageSpan = document.createElement('span');
             messageSpan.textContent = line;
             messageSpan.style.backgroundColor = '#fff9c0';
             messageSpan.style.transition = 'background-color 1s ease';
             this.logElement.appendChild(messageSpan);
-            if (idx < lines.length - 1) {
-                this.logElement.appendChild(document.createElement('br'));
-            }
+            // add a line break after every line (including the last) to ensure a new line
+            this.logElement.appendChild(document.createElement('br'));
             setTimeout(() => {
                 messageSpan.style.backgroundColor = '';
             }, 5000);
         });
         this.hasAppendedMessage = true;
-        this.addCaret(); // Add new caret after the message
+        this.addCaret(); // Add new caret after the message (now on the new line)
         this.updateCaretStyles(); // Update caret colors
         this.scrollToBottom();
     }
@@ -126,6 +125,7 @@ export class ChatLogCommon {
     }
 
     scrollToBottom() {
-        this.logElement.scrollTop = this.logElement.scrollHeight;
+        // this.logElement.scrollTop = this.logElement.scrollHeight;
+        window.scrollTo(0, document.body.scrollHeight);
     }
 }

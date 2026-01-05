@@ -1,6 +1,6 @@
 import { IdeasManager } from './ideas_manager.js';
 import { CoopiaSocketOnMessage } from './websocket_handlers.js';
-import { ChatLogCommon } from './result_output.js';
+import { ProcessResultDisplay } from './result_output.js';
 import { VoteButton } from './vote_button.js';
 import { OverlayMessage } from './overlay_message.js';
 
@@ -44,7 +44,7 @@ function connectWebSocket() {
 
         ws.onerror = (error) => {
             console.error("WebSocket error:", error);
-            // ws.close();
+            ws.close();
         };
     }
 
@@ -61,15 +61,14 @@ function connectWebSocket() {
 }
 const coopiaSocket = connectWebSocket();
 
-const log = document.querySelector('#chat-log-common');
-const chatLogCommon = new ChatLogCommon(log);
-
-const ideasManager = new IdeasManager(document.getElementById('idea-inputs'),chatLogCommon);
-
+const log = document.querySelector('#process-result-display');
+const processResultDisplay = new ProcessResultDisplay(log);
 
 // Vote button functionality
 const button_container = document.querySelector('#vote-button');
-const voteButton = new VoteButton(button_container, coopiaSocket, ideasManager);
+const voteButton = new VoteButton(button_container, coopiaSocket);
+
+const ideasManager = new IdeasManager(document.getElementById('idea-inputs'),voteButton);
 
 // Example usage:
 // voteButton.updateVoteStatus('waiting');
@@ -86,5 +85,5 @@ const overlay = new OverlayMessage(); // Default message
 // To hide the overlay
 // overlay.hide();
 
-coopiaSocket.onmessage = e => CoopiaSocketOnMessage(e, coopiaSocket, ideasManager,chatLogCommon,voteButton, overlay);
+coopiaSocket.onmessage = e => CoopiaSocketOnMessage(e, ideasManager,processResultDisplay,voteButton, overlay);
 

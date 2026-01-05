@@ -23,12 +23,16 @@ class ChatConsumer(WebsocketConsumer):
         self.accept()
         self.update_participant_count()
 
-        # send self.coopia_process.result to the user
-        if self.coopia_process.result!='':
-            self.send(text_data=json.dumps({
-                "type": "common_init",
-                "result": self.coopia_process.result
-            }))
+        # Send process information to the user on connect
+        async_to_sync(self.coopia_process.send_process_info)(self.channel_name)
+        
+        if self.coopia_process.is_running:
+            # Send current cycle information to the user on connect
+            async_to_sync(self.coopia_process.send_cycle_info)(self.channel_name)
+
+            # if in phase 2, send random ideas to compare to the newly connected user
+            if self.coopia_process.current_cycle_phase == 'phase2':
+                async_to_sync(self.coopia_process.send_random_ideas_to_compare)(self.channel_name)
 
     def disconnect(self, close_code):
         # Leave room group
@@ -40,43 +44,63 @@ class ChatConsumer(WebsocketConsumer):
     
     def update_participant_count(self):
         # don't do anything if there's no one in the group anymore
-        if self.channel_layer.groups[self.room_group_name] is None:
+        group = self.channel_layer.groups.get(self.room_group_name)
+        if not group:
             return
         # update number of members in the group
-        participants = list(self.channel_layer.groups[self.room_group_name].keys())
+        participants = list(group.keys())
         # send info to the users
         async_to_sync(self.channel_layer.group_send)(self.room_group_name,
         {
             "type": "send.participant.count",
             "count": len(participants)
         })
+    
 
     # Receive message from WebSocket
     def receive(self, text_data):
         if text_data == 'ping':
             return
         text_data_json = json.loads(text_data)
-        if text_data_json.get("type") == "vote":
+        if text_data_json.get("type") == "idea":
             idea = text_data_json["idea"]
-            async_to_sync(self.coopia_process.add_idea)(self.channel_name,idea)
+            async_to_sync(self.coopia_process.add_idea)(idea)
 
+        # client sending binary preference between two ideas
+        if text_data_json.get("type") == "preference":
+            # expected payload: {"type":"preference", "winner": "...", "loser":"..."}
+            winner = text_data_json.get("winner")
+            loser = text_data_json.get("loser")
+            if winner and loser:
+                async_to_sync(self.coopia_process.register_preference)(winner, loser)
+                async_to_sync(self.coopia_process.send_random_ideas_to_compare)(self.channel_name)
+        
     def send_participant_count(self, event):
         event["type"] = "participant_count"
         self.send(text_data=json.dumps(event))
     
-    def send_vote_percentage(self, event):
-        event["type"] = "vote_percentage"
+    def send_process_info(self, event):
+        """
+        Handler for process info sent to individual user.
+        """
+        event["type"] = "process_info"
+        self.send(text_data=json.dumps(event))
+        
+    def send_cycle_info(self, event):
+        """
+        Handler for cycle information broadcasts from the process.
+        """
+        event["type"] = "cycle_info"
         self.send(text_data=json.dumps(event))
 
-    def send_diffused_ideas(self, event):
-        event["type"] = "idea_diffusion"
+    def send_ideas(self, event):
+        event["type"] = "ideas"
 
         # Send message to WebSocket
         self.send(text_data=json.dumps(event))
 
-    # Receive message from room group
-    def send_result(self, event):
-        event["type"] = "common"
+    def send_cycle_result(self, event):
+        event["type"] = "cycle_result"
 
         # Send message to WebSocket
         self.send(text_data=json.dumps(event))

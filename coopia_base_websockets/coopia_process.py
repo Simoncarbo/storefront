@@ -15,11 +15,16 @@ class CoopiaProcess(object):
     It can be extended to add more functionality as needed.
     """
     def __init__(self, group_name,
-                 cycle_duration = 30,
-                 inspiration_moment = 20,
-                 nb_inspiration_ideas = 2,
+                 phase1_duration = 60,
+                 phase2_duration = 30,
+                 phase1_max_actions = 2,
+                 phase2_max_actions = 4,
+                 phase2_nb_ideas_to_compare = 2,
+                 phase2_preference_factor = 1.4,
                  max_cycles = 100,
-                 max_duration = 3600):
+                 max_duration = 3600,
+                 start_time = None,
+                 end_time=None):
         """
         Initialize the CoopiaProcess with the given parameters.
         """
@@ -30,39 +35,44 @@ class CoopiaProcess(object):
 
         self.channel_layer =  get_channel_layer()
 
-        self.cycle_duration = cycle_duration  # Duration of each cycle in seconds
-        self.inspiration_moment = inspiration_moment  # Duration of the inspiration moment in seconds
-        # ensure self.inspiration_moment is less than cycle_duration
-        if self.inspiration_moment >= self.cycle_duration:
-            raise ValueError("inspiration_moment must be less than cycle_duration")
+        self.phase1_duration = phase1_duration  # Duration of phase 1 in seconds
+        self.phase2_duration = phase2_duration  # Duration of phase 2 in seconds
+        self.cycle_duration = phase1_duration+phase2_duration  # Duration of each cycle in seconds
 
-        self.nb_inspiration_ideas = nb_inspiration_ideas  # Number of ideas to be diffused to each participant
+        self.phase1_max_actions = phase1_max_actions
+        self.phase2_max_actions = phase2_max_actions
+
+        self.phase2_nb_ideas_to_compare = phase2_nb_ideas_to_compare
+        self.phase2_preference_factor = phase2_preference_factor
 
         self.max_duration = max_duration 
         self.max_cycles = max_cycles  # Number of cycles to be played
         
-        self.start_time = None  # Start time of the process
-        self.end_time = None  # End time of the process
+        self.start_time = start_time  # Start time of the process
+        self.end_time = end_time  # End time of the process
 
         self.current_cycle_index = None  # Current cycle number
-        self.cycles = pd.DataFrame(columns = ['process_id','cycle_index','cycle_start_time', 'cycle_end_time', 'cycle_duration', 'cycle_result'])
+        self.current_cycle_start_time = None  # Start time of the current cycle
+        self.current_cycle_phase = None
+        self.cycles = pd.DataFrame(columns = ['process_id','cycle_index','self.current_cycle_start_time', 'cycle_end_time', 'cycle_duration', 'cycle_result'])
 
+        self.has_started = False  # Flag to indicate if the process has started
         self.is_running = False  # Flag to indicate if the process is running
         self.is_paused = False  # Flag to indicate if the process is paused
         self.is_finished = False  # Flag to indicate if the process is finished
 
-        self.result =''  # current result of the process
         self.task_description = None
+        self.results = []  # list of results from each cycle
+        
 
-        self.ideas = {}  # Dictionary to store ideas with their source
-        self.participants = []
-        self.vote_percentage = 0.0
+        self.ideas = {}  # Dictionary to store ideas with their weights
 
 
     async def start(self, task_description=''):
         """
         Start the CoopiaProcess.
         """
+        self.has_started = True
         self.is_running = True
         self.is_paused = False
         self.is_finished = False
@@ -115,118 +125,233 @@ class CoopiaProcess(object):
                     process_id=self.process_id,
                     group_name=self.group_name,
                     task_description=self.task_description,
-                    result=self.result,
+                    result='__'.join(self.results),
                     start_time=self.start_time,
                     end_time=self.end_time,
-                    current_cycle_index=self.current_cycle_index
+                    current_round_index=self.current_cycle_index
                 )
             except Exception as e:
                 print(f"Error saving process info: {e}")
 
-    async def update_participants(self, participants):
-        self.participants = participants
-
-    async def add_idea(self, channel_name, idea):
+    async def send_process_info(self, channel_name):
         """
-        Add an idea to the process.
+        Send process information to a single connected user.
         """
-        self.ideas[channel_name]=idea
-    
-        # await self.update_vote_percentage()
-    
-    async def reset_ideas(self):
-        self.ideas = {}
-        # await self.update_vote_percentage()
+        await self.channel_layer.send(
+            channel_name,
+            {
+                "type": "send.process.info",
+                "process_id": self.process_id,
+                "task_description": self.task_description,
+                "has_started": self.has_started,
+                "is_running": self.is_running,
+                "is_paused": self.is_paused,
+                "is_finished": self.is_finished,
+                "start_time": str(self.start_time) if self.start_time else None,
+                "cycle_duration": self.cycle_duration,
+                "results": self.results
+            }
+        )
 
-    # async def update_vote_percentage(self):
-    #     # remove ideas associated to users that are not in self.participants
-    #     self.ideas = {k: v for k, v in self.ideas.items() if k in self.participants}
-
-    #     self.vote_percentage = len(self.ideas) / len(self.participants) if self.participants else 0
-    #     print(self.vote_percentage)
-
-    #     # Broadcast the updated vote percentage to all participants
-    #     await self.channel_layer.group_send(
-    #         self.group_name,
-    #         {
-    #             "type": "send.vote_percentage",
-    #             "vote_percentage": cycle(self.vote_percentage*100)
-    #         }
-    #     )
-
-    def get_random_idea(self):
+    async def send_cycle_info(self, channel_name):
         """
-        Get a random idea from the process.
+        Send current cycle information to a single connected user.
         """
-        if self.ideas:
-            return random.choice(list(self.ideas.values()))
-        return None
-            
-    async def individual_inspiration(self, ideas):
-        """
-        Send to each member of the group two randomly selected ideas (excluding their own).
-        """
-        print("Diffusing ideas to participants...")
-        participants = list(self.channel_layer.groups[self.group_name].keys())
-        for participant in participants:
-            # Exclude the participant's own idea
-            other_ideas = [idea for sender, idea in ideas.items() if sender != participant]
-            # Exclude ideas that are empty or none
-            other_ideas = [idea for idea in other_ideas if idea and idea.strip()]
-            # Select up to two random ideas
-            selected_ideas = random.sample(other_ideas, min(self.nb_inspiration_ideas, len(other_ideas)))
+        elapsed_time = 0
+        if self.current_cycle_start_time:
+            elapsed_time = (datetime.datetime.now() - self.current_cycle_start_time).total_seconds()
+        
+        await self.channel_layer.send(
+            channel_name,
+            {
+                "type": "send.cycle.info",
+                "cycle_index": self.current_cycle_index,
+                "cycle_phase": self.current_cycle_phase,
+                "cycle_elapsed_time": elapsed_time,
+                "phase1_duration": self.phase1_duration,
+                "phase2_duration": self.phase2_duration,
+                "phase1_max_actions": self.phase1_max_actions,
+                "phase2_max_actions": self.phase2_max_actions
+            }
+        )
 
-            await self.channel_layer.send(
-                participant,
+    async def broadcast_cycle_info(self):
+        """
+        Broadcast cycle information to all group members.
+        """
+        elapsed_time = 0
+        if self.current_cycle_start_time:
+            elapsed_time = (datetime.datetime.now() - self.current_cycle_start_time).total_seconds()
+        
+
+        try:
+            await self.channel_layer.group_send(
+                self.group_name,
                 {
-                    "type": "send.diffused.ideas",
-                    "ideas": selected_ideas
+                    "type": "send.cycle.info",
+                    "cycle_index": self.current_cycle_index,
+                    "cycle_phase": self.current_cycle_phase,
+                    "cycle_elapsed_time": elapsed_time,
+                    "phase1_duration": self.phase1_duration,
+                    "phase2_duration": self.phase2_duration,
+                    "phase1_max_actions": self.phase1_max_actions,
+                    "phase2_max_actions": self.phase2_max_actions
                 }
             )
+        except Exception as e:
+            print(f"Error broadcasting cycle info: {e}")
 
-    async def broadcast_voting_result(self, result):
+
+    async def broadcast_cycle_result(self, result):
         """
         Broadcast a result to all participants.
         """
         await self.channel_layer.group_send(
-            self.group_name,{"type": "send.result", "message": result }
+            self.group_name,{"type": "send.cycle.result", "message": result }
             )
+
+    # async def update_participants(self, participants):
+    #     self.participants = participants
+
+    async def add_idea(self, idea):
+        """
+        Add an idea to the process with initial weight = 1.
+        """
+        self.ideas[idea]=1.0
+    
+    async def reset_ideas(self):
+        self.ideas = {}
+
+    async def register_preference(self, winner, loser):
+        """
+        Update weights according to a binary preference:
+        - multiply the winner weight by factor
+        - divide the loser weight by factor
+        If an idea is unknown, add it with default weight 1.0 first.
+        """
+        # ensure ideas exist
+        if winner not in self.ideas:
+            self.ideas[winner] = 1.0
+        if loser not in self.ideas:
+            self.ideas[loser] = 1.0
+
+        # update weights
+        self.ideas[winner] = self.ideas.get(winner) * self.phase2_preference_factor
+        self.ideas[loser] = self.ideas.get(loser) / self.phase2_preference_factor
+
+
+    def get_random_ideas(self, nb_ideas):
+        """
+        Get a random idea from the process using idea weights.
+        Returns a list of up to nb_ideas unique ideas (without replacement).
+        """
+        if not self.ideas:
+            return None
+
+        items = list(self.ideas.keys())
+        weights = list(self.ideas.values())
+
+        nb = min(nb_ideas, len(items))
+        if nb == 0:
+            return []
+
+        # If only one requested, use random.choices for efficiency
+        if nb == 1:
+            return [random.choices(items, weights=weights, k=1)[0]]
+
+        # Weighted sampling without replacement
+        selected = []
+        items_local = items[:]
+        weights_local = weights[:]
+        for _ in range(nb):
+            choice = random.choices(items_local, weights=weights_local, k=1)[0]
+            idx = items_local.index(choice)
+            selected.append(choice)
+            del items_local[idx] # deletes sampled idea
+            del weights_local[idx] # deletes corresponding weight
+        return selected   
+    
+    def get_best_idea(self):
+        """
+        Return the idea with the largest weight.
+        If multiple ideas share the largest weight, pick one at random.
+        Returns None if there are no ideas.
+        """
+        if not self.ideas:
+            return None
+
+        max_weight = max(self.ideas.values())
+        best_candidates = [idea for idea, w in self.ideas.items() if w == max_weight]
+        return random.choice(best_candidates)
+
+    async def send_random_ideas_to_compare(self, channel_name):  
+        """
+        Send to a member of the group two randomly selected ideas.
+        """
+        ideas = self.get_random_ideas(self.phase2_nb_ideas_to_compare)
+        # # Exclude ideas that are empty or none
+        # if ideas:
+        #     ideas = [idea for idea in ideas if idea and idea.strip()]
+        # else:
+        #     ideas = []
+
+        await self.channel_layer.send(
+            channel_name,
+            {
+                "type": "send.ideas",
+                "ideas": ideas
+            }
+        )
+          
+    async def broadcast_random_ideas_to_compare(self):
+        """
+        Send to each member of the group two randomly selected ideas.
+        """
+        print("Diffusing ideas to participants...")
+        participants = list(self.channel_layer.groups[self.group_name].keys())
+        for participant in participants:
+            await self.send_random_ideas_to_compare(participant)
+
 
     async def run_process(self):
         """
         Periodically broadcast a proposal to all participants.
         """
         while self.is_running:
-            # Check if the process has reached its maximum duration
+            self.current_cycle_index += 1
+            print(f"Starting cycle {self.current_cycle_index}...")
+            
+            # Check if the process has reached its maximum duration or maximum number of cycles reached
             if (datetime.datetime.now() >= self.end_time) or (self.current_cycle_index >= self.max_cycles):
                 self.finish()
                 break
 
             # Run a cycle of the CoopiaProcess
             await self.run_cycle()
-            self.current_cycle_index += 1
         self.finish(save=False) 
 
     async def run_cycle(self):
         """
         Run a single cycle of the CoopiaProcess.
         """
-        cycle_start_time = datetime.datetime.now()
+        self.current_cycle_start_time = datetime.datetime.now()
+        self.current_cycle_phase = 'phase1'
+
+        # Broadcast cycle start info
+        await self.broadcast_cycle_info()
 
         if self.current_cycle_index != 0:
             await self.reset_ideas()
 
-        start_time = time.time()
-        inspiration_sent = False
-
         while True:
-            elapsed = time.time() - start_time
+            elapsed = (datetime.datetime.now() - self.current_cycle_start_time).total_seconds()
 
-            # Call inspiration/reset once after inspiration_moment
-            if not inspiration_sent and elapsed >= self.inspiration_moment:
-                await self.individual_inspiration(self.ideas)
-                await self.reset_ideas()
-                inspiration_sent = True
+            if self.current_cycle_phase=="phase1" and elapsed >= self.phase1_duration:
+                # if number of ideas is less than 2, break early
+                if len(self.ideas) < 2:
+                    break
+                self.current_cycle_phase = 'phase2'
+                await self.broadcast_random_ideas_to_compare()
 
             if elapsed > self.cycle_duration:
                 break
@@ -235,21 +360,19 @@ class CoopiaProcess(object):
 
             if self.is_finished:
                 return
+            
 
         # Select a random idea and broadcast it
-        selected_idea = self.get_random_idea()
+        # ideas_list = self.get_random_ideas(1)
+        # selected_idea = ideas_list[0] if ideas_list else ""
+        # Select the best idea and broadcast it
+        selected_idea = self.get_best_idea()
         print(selected_idea)
 
-        self.result += selected_idea if selected_idea else ""
-        print(self.result)
+        self.results.append(selected_idea if selected_idea else "")
+        # print(self.results)
 
-        await self.channel_layer.group_send(
-            self.group_name,
-            {
-                "type": "send.result",
-                "message": selected_idea
-            }
-        )
+        await self.broadcast_cycle_result(selected_idea if selected_idea else "")
 
         cycle_end_time = datetime.datetime.now()
         self.cycles = pd.concat([
@@ -257,9 +380,9 @@ class CoopiaProcess(object):
             pd.DataFrame([{
                 'process_id': self.process_id,
                 'cycle_index': self.current_cycle_index,
-                'cycle_start_time': cycle_start_time,
+                'self.current_cycle_start_time': self.current_cycle_start_time,
                 'cycle_end_time': cycle_end_time,
-                'cycle_duration': (cycle_end_time - cycle_start_time).total_seconds(),
+                'cycle_duration': (cycle_end_time - self.current_cycle_start_time).total_seconds(),
                 'cycle_result': selected_idea
             }])
         ], ignore_index=True)

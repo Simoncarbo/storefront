@@ -1,19 +1,25 @@
 import { IdeaInput } from './idea_input.js';
 
 export class IdeasManager {
-    constructor(container, chatLogCommon) {
+    constructor(container,voteButton) {
         this.container = container;
         this.instances = [];
         this.radioName = 'selectedIdeaInput';
         this.selectedIndex = null; // Track which input is selected
+        this.voteButton = voteButton; // connected VoteButton
 
-        this.chatLogCommon = chatLogCommon;
-        this.chatLogCommon_prefix_length = 5;
-
-        this.addInput('', true, true);
+        this.voteButton.connect(this);
     }
 
-    reset() {
+    reset(remove = false) {
+        // If there's only one instance, reset that instance instead of removing it
+        if (this.instances.length === 1 && !remove) {
+            if (typeof this.instances[0].reset === 'function') {
+                this.instances[0].reset();
+            } 
+            return;
+        }
+
         this.instances.forEach(instance => {
             // Remove associated radio if present
             if (instance.radio && instance.radio.parentNode) {
@@ -23,42 +29,31 @@ export class IdeasManager {
         });
         this.instances = [];
         this.selectedIndex = 0;
-        this.addInput('', true, true);
     }
 
-    addInput(defaultValue = '', autoFocus = false, checked = false) {
-        const idea_prefix = this.chatLogCommon.getLastNCharsOfLastLine(this.chatLogCommon_prefix_length)
-        const input = new IdeaInput(this.container, defaultValue, idea_prefix, autoFocus, checked);
-        // Create radio button and insert before the input's wrapper
-        input.radio = document.createElement('input');
-        input.radio.type = 'radio';
-        input.radio.name = this.radioName;
-        input.radio.className = "mr-2 scale-150";
-        input.radio.checked = checked;
-        // The radio value will be set dynamically when requested
-        input.radio.addEventListener('change', () => {
-            this.selectedIndex = this.instances.indexOf(input);
-        });
-        // Insert radio before the input's wrapper
-        input.wrapper.insertBefore(input.radio, input.wrapper.firstChild);
+    addInput(defaultValue = '', autoFocus = false, checked = false, editable = false) {
+        if (this.voteButton.clickCount < this.voteButton.maxClicks) {
+            const input = new IdeaInput(this.container, this.voteButton, defaultValue, autoFocus, checked, editable);
+            // Create radio button and insert before the input's wrapper
+            input.radio = document.createElement('input');
+            input.radio.type = 'radio';
+            input.radio.name = this.radioName;
+            input.radio.className = "mr-2 scale-150";
+            input.radio.checked = checked;
+            // The radio value will be set dynamically when requested
+            input.radio.addEventListener('change', () => {
+                this.selectedIndex = this.instances.indexOf(input);
+            });
+            // Insert radio before the input's wrapper
+            input.wrapper.insertBefore(input.radio, input.wrapper.firstChild);
 
-        this.instances.push(input);
+            this.instances.push(input);
 
-        // If checked, update selectedIndex
-        if (checked) {
-            this.selectedIndex = this.instances.length - 1;
+            // If checked, update selectedIndex
+            if (checked) {
+                this.selectedIndex = this.instances.length - 1;
+            }
         }
-    }
-
-    ensureEmptyInput() {
-        const hasEmptyInput = this.instances.some(instance => instance.input.value === '');
-        if (!hasEmptyInput) {
-            this.addInput('', false);
-        }
-    }
-
-    isIdeaPresent(text) {
-        return this.instances.some(instance => instance.input.value === text);
     }
 
     // Get the value of the selected idea (radio)
@@ -68,6 +63,20 @@ export class IdeasManager {
             // Set radio value to current input value before returning
             selected.radio.value = selected.input.value;
             return selected.getValue();
+        }
+        return null;
+    }
+
+
+    getNotSelectedIdeaValue() {
+        if (!this.instances.length === 2) {
+            return null;
+        }
+        const notSelectedIndex = this.selectedIndex === 0 ? 1 : 0;
+        const notSelected = this.instances[notSelectedIndex];
+        if (notSelected) {
+            notSelected.radio.value = notSelected.input.value;
+            return notSelected.getValue();
         }
         return null;
     }

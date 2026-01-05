@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +27,7 @@ SECRET_KEY = 'django-insecure-*&-9e-&=u9zy#od-qpz#iku-5)7vh-95w6r=xxntspii%xbl=-
 DEBUG = True
 
 # comment line if you want to use the default settings
-# ALLOWED_HOSTS = ["192.168.1.158"]
+ALLOWED_HOSTS = ["192.168.0.213"]
 
 
 # Application definition
@@ -79,9 +80,13 @@ TEMPLATES = [
 #WSGI_APPLICATION = 'coopia.wsgi.application'
 ASGI_APPLICATION = "coopia.asgi.application"
 
+REDIS_URL = os.environ.get("REDIS_URL", "redis://127.0.0.1:6379")
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "coopia_base_websockets.channellayers.ChannelLayerForCoopiaProcess"
+        "BACKEND": "coopia_base_websockets.channellayers.ChannelLayerForCoopiaProcess",
+        # "CONFIG": {
+        #     "hosts": [REDIS_URL],
+        # }
     }
 }
 
