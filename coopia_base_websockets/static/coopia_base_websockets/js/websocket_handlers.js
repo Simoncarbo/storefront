@@ -2,8 +2,8 @@ import { CycleTimer } from './cycle_timer.js';
 
 let cycleTimer = null;
 
-let phase1_max_actions = 0;
-let phase2_max_actions = 0;
+let generation_max_actions = 3;
+let selection_max_actions = 5;
 let last_reported_phase = null;
 
 
@@ -30,29 +30,31 @@ export async function CoopiaSocketOnMessage(e, ideasManager, ProcessResultDispla
             //     overlay.showMessage(`Le processus n'a pas encore démarré. La date et l'heure de démarrage ne sont pas encore définis.`);}
             }
 
-    } else if (data.type === 'cycle_info') {
+    } else if (data.type === 'cycle_state') {
         // Update phase max actions from data
-        phase1_max_actions = data.phase1_max_actions || 0;
-        phase2_max_actions = data.phase2_max_actions || 0;
+        // generation_max_actions = data.generation_max_actions || 0;
+        // selection_max_actions = data.selection_max_actions || 0;
 
         // compute start timestamp (ms since epoch) from elapsed seconds (if provided)
-        const elapsedSeconds = Number(data.cycle_elapsed_time) || 0;
+        const elapsedSeconds = Number(data.current_time-data.current_phase_start_time) || 0;
         const startTs = Date.now() - (elapsedSeconds * 1000);
+        const phase_duration = Number(data.current_phase_end_time-data.current_phase_start_time)
  
         if (!cycleTimer) {
-            cycleTimer = new CycleTimer(data.phase1_duration, data.phase2_duration, '#timer-container');
+            // je mets phase_2_duration à 0 -> on n'aura toujours qu'une couleur dans la progress bar
+            cycleTimer = new CycleTimer(phase_duration, 0, '#timer-container');
             cycleTimer.mount('#timer-container');
         } else {
-            cycleTimer.setDurations(data.phase1_duration, data.phase2_duration);
+            cycleTimer.setDurations(phase_duration, 0);
         }
         // start (or restart) timer using derived start timestamp so progress reflects elapsed time
         cycleTimer.start(startTs);
 
-        if (data.cycle_phase === 'phase1') {
+        if (data.current_phase === 'generation') {
             ideasManager.reset(true);
             voteButton.setVoteButtonText('Envoyer');
-            voteButton.reset(phase1_max_actions);
-            last_reported_phase = 'phase1';
+            voteButton.reset(generation_max_actions);
+            last_reported_phase = 'generation';
             ideasManager.addInput('', true, true, true);
         }
 
@@ -67,9 +69,9 @@ export async function CoopiaSocketOnMessage(e, ideasManager, ProcessResultDispla
         }
         return;
     } else if (data.type === 'ideas') {
-        if (last_reported_phase !== 'phase2') {
+        if (last_reported_phase !== 'selection') {
             voteButton.setVoteButtonText('Envoyer préférence');
-            voteButton.reset(phase2_max_actions);
+            voteButton.reset(selection_max_actions);
         }
 
         // data.ideas is expected to be an array of ideas
@@ -80,7 +82,7 @@ export async function CoopiaSocketOnMessage(e, ideasManager, ProcessResultDispla
             }
         }
 
-        last_reported_phase = 'phase2';
+        last_reported_phase = 'selection';
     } else {
         console.error('Unknown message type:', data.type);
     }

@@ -6,13 +6,16 @@ import { OverlayMessage } from './overlay_message.js';
 
 const roomName = JSON.parse(document.getElementById('room-name').textContent);
 
+let coopiaSocket;
+let onmessageHandler;
+
 function connectWebSocket() {
-    let ws;
     let reconnectDelay = 1000; // start with 1s
     const maxDelay = 10000;    // cap at 10s
+    let keepaliveInterval;
 
     function init() {
-        ws = new WebSocket(
+        coopiaSocket = new WebSocket(
             'ws://'
             + window.location.host
             + '/ws/coopiabasewebsockets/'
@@ -20,32 +23,35 @@ function connectWebSocket() {
             + '/'
         );
 
-        ws.onopen = () => {
+        coopiaSocket.onopen = () => {
             console.log("Connected to server");
             reconnectDelay = 1000; // reset backoff
 
             // Start keepalive ping
-            setInterval(() => {
-                if (ws.readyState === WebSocket.OPEN) {
-                    ws.send("ping");
+            keepaliveInterval = setInterval(() => {
+                if (coopiaSocket.readyState === WebSocket.OPEN) {
+                    coopiaSocket.send("ping");
                 }
             }, 10000);
         };
 
-        // ws.onmessage = (event) => {
-        //     console.log("Message:", event.data);
-        //     // handle your app messages here
-        // };
-
-        ws.onclose = (event) => {
+        coopiaSocket.onclose = (event) => {
             console.warn("WebSocket closed:", event.code, event.reason);
+            if (keepaliveInterval) {
+                clearInterval(keepaliveInterval);
+                keepaliveInterval = null;
+            }
             reconnect();
         };
 
-        ws.onerror = (error) => {
+        coopiaSocket.onerror = (error) => {
             console.error("WebSocket error:", error);
-            ws.close();
+            coopiaSocket.close();
         };
+
+        if (onmessageHandler) {
+            coopiaSocket.onmessage = onmessageHandler;
+        }
     }
 
     function reconnect() {
@@ -57,9 +63,9 @@ function connectWebSocket() {
     }
 
     init();
-    return ws;
 }
-const coopiaSocket = connectWebSocket();
+
+connectWebSocket();
 
 const log = document.querySelector('#process-result-display');
 const processResultDisplay = new ProcessResultDisplay(log);
@@ -85,5 +91,6 @@ const overlay = new OverlayMessage(); // Default message
 // To hide the overlay
 // overlay.hide();
 
-coopiaSocket.onmessage = e => CoopiaSocketOnMessage(e, ideasManager,processResultDisplay,voteButton, overlay);
+onmessageHandler = e => CoopiaSocketOnMessage(e, ideasManager,processResultDisplay,voteButton, overlay);
+coopiaSocket.onmessage = onmessageHandler;
 

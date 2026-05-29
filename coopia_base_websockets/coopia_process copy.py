@@ -15,12 +15,12 @@ class CoopiaProcess(object):
     It can be extended to add more functionality as needed.
     """
     def __init__(self, group_name,
-                 phase1_duration = 60,
-                 phase2_duration = 30,
-                 phase1_max_actions = 2,
-                 phase2_max_actions = 4,
-                 phase2_nb_ideas_to_compare = 2,
-                 phase2_preference_factor = 1.4,
+                 generation_duration = 60,
+                 selection_duration = 30,
+                 generation_max_actions = 2,
+                 selection_max_actions = 4,
+                 selection_nb_ideas_to_compare = 2,
+                 selection_preference_factor = 1.4,
                  max_cycles = 100,
                  max_duration = 3600,
                  start_time = None,
@@ -35,15 +35,15 @@ class CoopiaProcess(object):
 
         self.channel_layer =  get_channel_layer()
 
-        self.phase1_duration = phase1_duration  # Duration of phase 1 in seconds
-        self.phase2_duration = phase2_duration  # Duration of phase 2 in seconds
-        self.cycle_duration = phase1_duration+phase2_duration  # Duration of each cycle in seconds
+        self.generation_duration = generation_duration  # Duration of phase 1 in seconds
+        self.selection_duration = selection_duration  # Duration of phase 2 in seconds
+        self.cycle_duration = generation_duration+selection_duration  # Duration of each cycle in seconds
 
-        self.phase1_max_actions = phase1_max_actions
-        self.phase2_max_actions = phase2_max_actions
+        self.generation_max_actions = generation_max_actions
+        self.selection_max_actions = selection_max_actions
 
-        self.phase2_nb_ideas_to_compare = phase2_nb_ideas_to_compare
-        self.phase2_preference_factor = phase2_preference_factor
+        self.selection_nb_ideas_to_compare = selection_nb_ideas_to_compare
+        self.selection_preference_factor = selection_preference_factor
 
         self.max_duration = max_duration 
         self.max_cycles = max_cycles  # Number of cycles to be played
@@ -168,10 +168,10 @@ class CoopiaProcess(object):
                 "cycle_index": self.current_cycle_index,
                 "cycle_phase": self.current_cycle_phase,
                 "cycle_elapsed_time": elapsed_time,
-                "phase1_duration": self.phase1_duration,
-                "phase2_duration": self.phase2_duration,
-                "phase1_max_actions": self.phase1_max_actions,
-                "phase2_max_actions": self.phase2_max_actions
+                "generation_duration": self.generation_duration,
+                "selection_duration": self.selection_duration,
+                "generation_max_actions": self.generation_max_actions,
+                "selection_max_actions": self.selection_max_actions
             }
         )
 
@@ -192,10 +192,10 @@ class CoopiaProcess(object):
                     "cycle_index": self.current_cycle_index,
                     "cycle_phase": self.current_cycle_phase,
                     "cycle_elapsed_time": elapsed_time,
-                    "phase1_duration": self.phase1_duration,
-                    "phase2_duration": self.phase2_duration,
-                    "phase1_max_actions": self.phase1_max_actions,
-                    "phase2_max_actions": self.phase2_max_actions
+                    "generation_duration": self.generation_duration,
+                    "selection_duration": self.selection_duration,
+                    "generation_max_actions": self.generation_max_actions,
+                    "selection_max_actions": self.selection_max_actions
                 }
             )
         except Exception as e:
@@ -210,85 +210,11 @@ class CoopiaProcess(object):
             self.group_name,{"type": "send.cycle.result", "message": result }
             )
 
-    # async def update_participants(self, participants):
-    #     self.participants = participants
-
-    async def add_idea(self, idea):
-        """
-        Add an idea to the process with initial weight = 1.
-        """
-        self.ideas[idea]=1.0
-    
-    async def reset_ideas(self):
-        self.ideas = {}
-
-    async def register_preference(self, winner, loser):
-        """
-        Update weights according to a binary preference:
-        - multiply the winner weight by factor
-        - divide the loser weight by factor
-        If an idea is unknown, add it with default weight 1.0 first.
-        """
-        # ensure ideas exist
-        if winner not in self.ideas:
-            self.ideas[winner] = 1.0
-        if loser not in self.ideas:
-            self.ideas[loser] = 1.0
-
-        # update weights
-        self.ideas[winner] = self.ideas.get(winner) * self.phase2_preference_factor
-        self.ideas[loser] = self.ideas.get(loser) / self.phase2_preference_factor
-
-
-    def get_random_ideas(self, nb_ideas):
-        """
-        Get a random idea from the process using idea weights.
-        Returns a list of up to nb_ideas unique ideas (without replacement).
-        """
-        if not self.ideas:
-            return None
-
-        items = list(self.ideas.keys())
-        weights = list(self.ideas.values())
-
-        nb = min(nb_ideas, len(items))
-        if nb == 0:
-            return []
-
-        # If only one requested, use random.choices for efficiency
-        if nb == 1:
-            return [random.choices(items, weights=weights, k=1)[0]]
-
-        # Weighted sampling without replacement
-        selected = []
-        items_local = items[:]
-        weights_local = weights[:]
-        for _ in range(nb):
-            choice = random.choices(items_local, weights=weights_local, k=1)[0]
-            idx = items_local.index(choice)
-            selected.append(choice)
-            del items_local[idx] # deletes sampled idea
-            del weights_local[idx] # deletes corresponding weight
-        return selected   
-    
-    def get_best_idea(self):
-        """
-        Return the idea with the largest weight.
-        If multiple ideas share the largest weight, pick one at random.
-        Returns None if there are no ideas.
-        """
-        if not self.ideas:
-            return None
-
-        max_weight = max(self.ideas.values())
-        best_candidates = [idea for idea, w in self.ideas.items() if w == max_weight]
-        return random.choice(best_candidates)
-
     async def send_random_ideas_to_compare(self, channel_name):  
         """
         Send to a member of the group two randomly selected ideas.
         """
-        ideas = self.get_random_ideas(self.phase2_nb_ideas_to_compare)
+        ideas = self.get_random_ideas(self.selection_nb_ideas_to_compare)
         # # Exclude ideas that are empty or none
         # if ideas:
         #     ideas = [idea for idea in ideas if idea and idea.strip()]
@@ -335,7 +261,7 @@ class CoopiaProcess(object):
         Run a single cycle of the CoopiaProcess.
         """
         self.current_cycle_start_time = datetime.datetime.now()
-        self.current_cycle_phase = 'phase1'
+        self.current_cycle_phase = 'generation'
 
         # Broadcast cycle start info
         await self.broadcast_cycle_info()
@@ -346,11 +272,11 @@ class CoopiaProcess(object):
         while True:
             elapsed = (datetime.datetime.now() - self.current_cycle_start_time).total_seconds()
 
-            if self.current_cycle_phase=="phase1" and elapsed >= self.phase1_duration:
+            if self.current_cycle_phase=="generation" and elapsed >= self.generation_duration:
                 # if number of ideas is less than 2, break early
                 if len(self.ideas) < 2:
                     break
-                self.current_cycle_phase = 'phase2'
+                self.current_cycle_phase = 'selection'
                 await self.broadcast_random_ideas_to_compare()
 
             if elapsed > self.cycle_duration:

@@ -27,7 +27,8 @@ SECRET_KEY = 'django-insecure-*&-9e-&=u9zy#od-qpz#iku-5)7vh-95w6r=xxntspii%xbl=-
 DEBUG = True
 
 # comment line if you want to use the default settings
-ALLOWED_HOSTS = ["192.168.0.213"]
+# ALLOWED_HOSTS = ["192.168.0.213"]
+
 
 
 # Application definition
@@ -84,9 +85,9 @@ REDIS_URL = os.environ.get("REDIS_URL", "redis://127.0.0.1:6379")
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "coopia_base_websockets.channellayers.ChannelLayerForCoopiaProcess",
-        # "CONFIG": {
-        #     "hosts": [REDIS_URL],
-        # }
+        "CONFIG": {
+            "hosts": [REDIS_URL],
+        }
     }
 }
 
@@ -136,7 +137,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

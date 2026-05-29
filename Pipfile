@@ -12,6 +12,10 @@ tzdata = "==2024.1"
 channels = {extras = ["daphne"], version = "*"}
 pandas = "*"
 channels-redis = "*"
+pytest = "*"
+pytest-asyncio = "*"
+redis = "*"
+aioredis = "*"
 
 [dev-packages]
 

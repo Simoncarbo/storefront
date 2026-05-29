@@ -1,70 +1,68 @@
 # chat/consumers.py
+import time
 import json
+import asyncio
 
-from asgiref.sync import async_to_sync
-from channels.generic.websocket import WebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
 
 
-class ChatConsumer(WebsocketConsumer):
-    def connect(self):
+class ChatConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.room_group_name = f"{self.room_name}"
 
         # Join room group
-        async_to_sync(self.channel_layer.group_add)(
+        await self.channel_layer.group_add(
             self.room_group_name, self.channel_name
         )
 
-        # Add coopia process to group if not already present
-        async_to_sync(self.channel_layer.add_coopia_process_to_group)(
-            self.room_group_name)
-        self.coopia_process = self.channel_layer.coopia_processes[self.room_group_name]
+        # Subscribe to unreliable pubsub for participant count updates
+        self.pubsub = await self.channel_layer.subscribe_unreliable_group(self.room_group_name)
+        self.listen_task = asyncio.create_task(self.listen_to_pubsub())
 
-        self.accept()
-        self.update_participant_count()
+        await self.accept()
+
+        # Update participant count on connect
+        await self.channel_layer.update_participant_count(self.room_group_name)
 
         # Send process information to the user on connect
-        async_to_sync(self.coopia_process.send_process_info)(self.channel_name)
-        
-        if self.coopia_process.is_running:
-            # Send current cycle information to the user on connect
-            async_to_sync(self.coopia_process.send_cycle_info)(self.channel_name)
+        # utile pour envoyer les résultats précédents, mais pas encore implémenté
+        # await self.send_process_info()
 
-            # if in phase 2, send random ideas to compare to the newly connected user
-            if self.coopia_process.current_cycle_phase == 'phase2':
-                async_to_sync(self.coopia_process.send_random_ideas_to_compare)(self.channel_name)
+        # if running?
+        await self.send_cycle_state(on_connect = True)
 
-    def disconnect(self, close_code):
+    async def disconnect(self, close_code):
+        # Cancel the listen task
+        if self.listen_task:
+            self.listen_task.cancel()
+            try:
+                await self.listen_task
+            except asyncio.CancelledError:
+                pass
+
+        # Close pubsub
+        if self.pubsub:
+            await self.pubsub.unsubscribe()
+            await self.pubsub.close()
+
         # Leave room group
-        async_to_sync(self.channel_layer.group_discard)(
+        await self.channel_layer.group_discard(
             self.room_group_name, self.channel_name
         )
 
-        self.update_participant_count()
-    
-    def update_participant_count(self):
-        # don't do anything if there's no one in the group anymore
-        group = self.channel_layer.groups.get(self.room_group_name)
-        if not group:
-            return
-        # update number of members in the group
-        participants = list(group.keys())
-        # send info to the users
-        async_to_sync(self.channel_layer.group_send)(self.room_group_name,
-        {
-            "type": "send.participant.count",
-            "count": len(participants)
-        })
-    
+        # Update participant count on disconnect
+        await self.channel_layer.update_participant_count(self.room_group_name)
+  
 
     # Receive message from WebSocket
-    def receive(self, text_data):
+    async def receive(self, text_data):
         if text_data == 'ping':
             return
         text_data_json = json.loads(text_data)
         if text_data_json.get("type") == "idea":
             idea = text_data_json["idea"]
-            async_to_sync(self.coopia_process.add_idea)(idea)
+            await self.channel_layer.add_idea(self.room_group_name,idea)
 
         # client sending binary preference between two ideas
         if text_data_json.get("type") == "preference":
@@ -72,38 +70,59 @@ class ChatConsumer(WebsocketConsumer):
             winner = text_data_json.get("winner")
             loser = text_data_json.get("loser")
             if winner and loser:
-                async_to_sync(self.coopia_process.register_preference)(winner, loser)
-                async_to_sync(self.coopia_process.send_random_ideas_to_compare)(self.channel_name)
+                await self.channel_layer.register_preference(self.room_group_name, winner, loser)
+                await self.send_random_ideas() 
         
-    def send_participant_count(self, event):
+    async def send_participant_count(self, event):
         event["type"] = "participant_count"
-        self.send(text_data=json.dumps(event))
+        await self.send(text_data=json.dumps(event))
     
-    def send_process_info(self, event):
+    async def send_process_info(self, event):
         """
         Handler for process info sent to individual user.
         """
         event["type"] = "process_info"
-        self.send(text_data=json.dumps(event))
+        await self.send(text_data=json.dumps(event))
         
-    def send_cycle_info(self, event):
+    async def send_cycle_state(self, event = {}, on_connect = False):
         """
         Handler for cycle information broadcasts from the process.
         """
-        event["type"] = "cycle_info"
-        self.send(text_data=json.dumps(event))
+        event["type"] = "cycle_state"
+        # Use numeric epoch seconds so clients can compute elapsed time reliably
+        event["current_time"] = time.time()
 
-    def send_ideas(self, event):
+        cycle_state = await self.channel_layer.get_cycle_state(self.room_group_name)
+        if not cycle_state:
+            # If cycle state is missing, send a minimal state so clients don't crash
+            await self.send(text_data=json.dumps(event))
+            return
+        event.update(cycle_state)
+
+        await self.send(text_data=json.dumps(event))
+
+        # if first selection phase, send random ideas to compare
+        if (cycle_state['current_phase'] == 'selection') and (on_connect or (cycle_state['nb_selections_done']==0)):
+            await self.send_random_ideas()        
+
+    async def send_random_ideas(self, event = {}):
         event["type"] = "ideas"
-
+        event["ideas"] = await self.channel_layer.get_random_ideas(self.room_group_name, 2)
         # Send message to WebSocket
-        self.send(text_data=json.dumps(event))
+        await self.send(text_data=json.dumps(event))
 
-    def send_cycle_result(self, event):
+    async def send_cycle_result(self, event):
         event["type"] = "cycle_result"
 
         # Send message to WebSocket
-        self.send(text_data=json.dumps(event))
+        await self.send(text_data=json.dumps(event))
 
+    async def listen_to_pubsub(self):
+        try:
+            async for message in self.channel_layer.listen_unreliable(self.pubsub):
+                if message.get("type") == "send.participant.count":
+                    await self.send_participant_count({"count": message["count"]})
+        except asyncio.CancelledError:
+            pass
 
-    
+    ## a définir: send_loop_state, send_cycle_state, send_cycle_params

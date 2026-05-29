@@ -1,3 +1,5 @@
+import time
+
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
@@ -33,28 +35,31 @@ def room_admin_action(request, room_name):
         # Get the channel layer and process
         from channels.layers import get_channel_layer
         channel_layer = get_channel_layer()
-        # Assume your channel layer has a .coopia_processes dict
-        process = getattr(channel_layer, "coopia_processes", {}).get(room_name)
-        # if not process and action == "start":
-        #     # Create a new process if not exists
-        #     awaitable = channel_layer.add_coopia_process_to_group(room_name)
-        #     if hasattr(awaitable, "__await__"):
-        #         import asyncio
-        #         asyncio.get_event_loop().run_until_complete(awaitable)
-        #     process = channel_layer.coopia_processes.get(room_name)
-        if not process:
-            return JsonResponse({"error": "No process found for this room"}, status=404)
+
         if action == "start":
-            async_to_sync(process.start)()
-        elif action == "pause":
-            process.pause()
-        elif action == "resume":
-            process.resume()
-            process.set_next_round_parameters(next_round_duration=duration, next_round_nb_idea_promotions=nb_promotions)
-        elif action == "finish":
-            process.finish(save = False)
-        elif action == "next_round":
-            process.set_next_round_parameters(next_round_duration=duration, next_round_nb_idea_promotions=nb_promotions)
+            if channel_layer and hasattr(channel_layer, "start_global_tick_loop"):
+                    current_time = time.time()
+                    async_to_sync(channel_layer.set_cycle_params)(group=room_name, 
+                                                         generation_duration=20, 
+                                                         selection_duration=20, 
+                                                         nb_selections=1)
+        
+                    async_to_sync(channel_layer.set_cycle_state)(group=room_name, 
+                                                        current_cycle_start_time=current_time, 
+                                                        current_phase="generation", 
+                                                        nb_selections_done=0, 
+                                                        current_phase_start_time=current_time, 
+                                                        current_cycle_end_time=None, 
+                                                        current_phase_end_time=None)
+        # elif action == "pause":
+        #     process.pause()
+        # elif action == "resume":
+        #     process.resume()
+        #     process.set_next_round_parameters(next_round_duration=duration, next_round_nb_idea_promotions=nb_promotions)
+        # elif action == "finish":
+        #     process.finish(save = False)
+        # elif action == "next_round":
+        #     process.set_next_round_parameters(next_round_duration=duration, next_round_nb_idea_promotions=nb_promotions)
         else:
             return JsonResponse({"error": "Unknown action"}, status=400)
         return JsonResponse({"status": f"{action} called"})
