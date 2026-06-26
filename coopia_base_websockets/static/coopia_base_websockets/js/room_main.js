@@ -15,8 +15,11 @@ function connectWebSocket() {
     let keepaliveInterval;
 
     function init() {
+        // Determine the secure or insecure scheme dynamically
+        const wsScheme = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+
         coopiaSocket = new WebSocket(
-            'ws://'
+            wsScheme
             + window.location.host
             + '/ws/coopiabasewebsockets/'
             + roomName
