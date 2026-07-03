@@ -41,7 +41,7 @@ def room_admin_action(request, room_name):
                     current_time = time.time()
                     async_to_sync(channel_layer.set_cycle_params)(group=room_name, 
                                                          generation_duration=75, 
-                                                         selection_duration=20, 
+                                                         selection_duration=30, 
                                                          nb_selections=1)
         
                     async_to_sync(channel_layer.set_cycle_state)(group=room_name, 
