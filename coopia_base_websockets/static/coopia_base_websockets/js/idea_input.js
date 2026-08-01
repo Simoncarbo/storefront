@@ -13,21 +13,21 @@ export class IdeaInput {
 
         // Wrapper styled like an input
         this.inputWrapper = document.createElement('div');
-        this.inputWrapper.className = "flex items-start border border-gray-300 rounded-lg px-2 py-1 pr-10 w-full bg-white relative";
+        this.inputWrapper.className = "flex items-start border border-gray-300 rounded-lg px-2 pr-10 w-full bg-white relative";
 
         this.input = document.createElement('textarea');
         this.input.className = "flex-1 outline-none bg-transparent resize-none overflow-hidden leading-snug";
         this.input.value = defaultValue;
-        if (this.editable)  this.input.placeholder = " Écris ton idée ici...";
+        if (this.editable)  this.input.placeholder = "Proposition anonyme";
         
         this.input.autocomplete = "off";
         this.input.maxLength = 150;
-        this.input.rows = 1; // minimum height
-        this.input.style.minHeight = '1.5rem';
+        this.input.rows = 1;
+        this.input.style.minHeight = '3rem';  // minimum height
         this.input.style.lineHeight = '1.25rem';
         this.input.style.verticalAlign = 'middle'; // Align with sibling inline elements
-        this.input.style.paddingTop = '0.1rem';   // Slight adjustment (tweak as needed)
-        this.input.style.paddingBottom = '0.1rem';
+        this.input.style.paddingTop = '0.85rem';   // Slight adjustment (tweak as needed)
+        this.input.style.paddingBottom = '0';//.1rem';
         this.input.style.margin = '0';            // Remove default margin
         this.input.disabled = !editable;
 

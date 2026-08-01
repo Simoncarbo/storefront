@@ -1,6 +1,6 @@
-import { CycleTimer } from './cycle_timer.js';
+// import { CycleTimer } from './cycle_timer.js';
 
-let cycleTimer = null;
+// let cycleTimer = null;
 
 let generation_max_actions = 3;
 let selection_max_actions = 5;
@@ -40,19 +40,20 @@ export async function CoopiaSocketOnMessage(e, ideasManager, ProcessResultDispla
         const startTs = Date.now() - (elapsedSeconds * 1000);
         const phase_duration = Number(data.current_phase_end_time-data.current_phase_start_time)
  
-        if (!cycleTimer) {
-            // je mets phase_2_duration à 0 -> on n'aura toujours qu'une couleur dans la progress bar
-            cycleTimer = new CycleTimer(phase_duration, 0, '#timer-container');
-            cycleTimer.mount('#timer-container');
-        } else {
-            cycleTimer.setDurations(phase_duration, 0);
-        }
-        // start (or restart) timer using derived start timestamp so progress reflects elapsed time
-        cycleTimer.start(startTs);
+        // if (!cycleTimer) {
+        //     // je mets phase_2_duration à 0 -> on n'aura toujours qu'une couleur dans la progress bar
+        //     cycleTimer = new CycleTimer(phase_duration, 0, '#timer-container');
+        //     cycleTimer.mount('#timer-container');
+        // } else {
+        //     cycleTimer.setDurations(phase_duration, 0);
+        // }
+        // // start (or restart) timer using derived start timestamp so progress reflects elapsed time
+        // cycleTimer.start(startTs);
+        voteButton.start_countdown(phase_duration - elapsedSeconds);
 
         if (data.current_phase === 'generation') {
             ideasManager.reset(true);
-            voteButton.setVoteButtonText('Envoyer');
+            // voteButton.setVoteButtonText('Envoyer');
             voteButton.reset(generation_max_actions);
             last_reported_phase = 'generation';
             ideasManager.addInput('', true, true, true);
@@ -65,12 +66,12 @@ export async function CoopiaSocketOnMessage(e, ideasManager, ProcessResultDispla
         // Update the participant count display
         const countDiv = document.getElementById('participant-count');
         if (countDiv) {
-            countDiv.textContent = `Nombre de scribes : ${data.count}`;
+            countDiv.textContent = `Nombre de participant.e.s : ${data.count}`;
         }
         return;
     } else if (data.type === 'ideas') {
         if (last_reported_phase !== 'selection') {
-            voteButton.setVoteButtonText('Envoyer préférence');
+            // voteButton.setVoteButtonText('Envoyer préférence');
             voteButton.reset(selection_max_actions);
         }
 

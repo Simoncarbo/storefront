@@ -7,6 +7,7 @@ export class IdeasManager {
         this.radioName = 'selectedIdeaInput';
         this.selectedIndex = null; // Track which input is selected
         this.voteButton = voteButton; // connected VoteButton
+        this.participant_input = {'participant_proposal': null}; // Track participant input
 
         this.voteButton.connect(this);
     }
@@ -17,6 +18,7 @@ export class IdeasManager {
             if (typeof this.instances[0].reset === 'function') {
                 this.instances[0].reset();
             } 
+            this.voteButton.setNotClickableAppearance();
             return;
         }
 
@@ -29,6 +31,7 @@ export class IdeasManager {
         });
         this.instances = [];
         this.selectedIndex = 0;
+        this.voteButton.setNotClickableAppearance();
     }
 
     addInput(defaultValue = '', autoFocus = false, checked = false, editable = false) {
@@ -43,11 +46,26 @@ export class IdeasManager {
             // The radio value will be set dynamically when requested
             input.radio.addEventListener('change', () => {
                 this.selectedIndex = this.instances.indexOf(input);
+                if (this.voteButton.clickCount < this.voteButton.maxClicks) {
+                        this.voteButton.setClickableAppearance();
+                }
             });
-            // Insert radio before the input's wrapper
-            input.wrapper.insertBefore(input.radio, input.wrapper.firstChild);
+            // Insert radio before the input's wrapper only if selection phase
+            if (!checked) {
+                input.wrapper.insertBefore(input.radio, input.wrapper.firstChild);
+            }
 
             this.instances.push(input);
+
+            // Listen for changes to the input and update participant_input
+            input.input.addEventListener('input', () => {
+                this.participant_input = {'participant_proposal': input.getValue()};
+                if (input.getValue().trim() !== '' && this.voteButton.clickCount < this.voteButton.maxClicks) {
+                    this.voteButton.setClickableAppearance();
+                } else {
+                    this.voteButton.setNotClickableAppearance();
+                }
+            });
 
             // If checked, update selectedIndex
             if (checked) {
