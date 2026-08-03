@@ -51,7 +51,7 @@ export class VoteButton {
 
     setClickableAppearance() {
         this.voteButton.disabled = false;
-        this.voteButton.style.backgroundColor = '#2563eb';
+        this.voteButton.style.backgroundColor = '#6D28D9'; // #8B5CF6 #6D28D9 #4F46E5
         this.voteButton.style.border = '0px solid #1e40af';
         this.voteButton.style.color = '#ffffff';
         this.voteButton.style.cursor = 'pointer';

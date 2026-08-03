@@ -63,10 +63,10 @@ export async function CoopiaSocketOnMessage(e, ideasManager, ProcessResultDispla
     } else if (data.type === 'cycle_result') {
         ProcessResultDisplay.appendMessage(data.message);
     } else if (data.type === 'participant_count') {
-        // Update the participant count display
-        const countDiv = document.getElementById('participant-count');
-        if (countDiv) {
-            countDiv.textContent = `Nombre de participant.e.s : ${data.count}`;
+        // Update only the participant count text, preserving the icon
+        const countValue = document.getElementById('participant-count-value');
+        if (countValue) {
+            countValue.textContent = `${data.count}`;
         }
         return;
     } else if (data.type === 'ideas') {
