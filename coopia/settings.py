@@ -43,14 +43,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'coopia_base.apps.CoopiaBaseConfig',
     'coopia_base_websockets.apps.CoopiaBaseWebsocketsConfig',
-    'debug_toolbar',
+    # 'debug_toolbar',
     'tailwind',
     'theme',
     #'django_browser_reload' # needs to be installed, for automatic browser refresh
 ]
 
 MIDDLEWARE = [
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    # "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

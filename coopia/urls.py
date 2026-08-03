@@ -16,10 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from debug_toolbar.toolbar import debug_toolbar_urls
+# from debug_toolbar.toolbar import debug_toolbar_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('coopiabase/',include('coopia_base.urls')), # all requests starting with 'coopia/' should be handled by this app
     path('coopiabasewebsockets/',include('coopia_base_websockets.urls')) 
-] + debug_toolbar_urls()
+] #+ debug_toolbar_urls()
