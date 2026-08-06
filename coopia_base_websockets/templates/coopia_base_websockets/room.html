@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 h-screen flex flex-col sm:items-center sm:justify-center sm:py-4">
-    <div id="room-container" class="w-full h-dvh sm:h-screen sm:max-w-xl bg-white flex flex-col mx-auto sm:rounded-lg sm:shadow-lg overflow-hidden">
+    <div id="room-container" class="w-full min-h-dvh sm:h-screen sm:max-w-xl bg-white flex flex-col mx-auto sm:rounded-lg sm:shadow-lg">
         <!-- Header -->
         <div id="header" class="flex justify-between items-start px-2 sm:px-4 md:px-6 py-4 flex-shrink-0">
             <div></div>
@@ -22,7 +22,7 @@
         
         <!-- Middle Frame (scrollable) -->
         <div id="process-result-display" 
-            class="flex-1 overflow-y-auto px-2 sm:px-4 md:px-6 py-4 whitespace-pre-wrap font-mono leading-snug text-left">
+            class="flex-1 min-h-0 overflow-y-auto px-2 sm:px-4 md:px-6 py-4 whitespace-pre-wrap font-mono leading-snug text-left">
         </div>
         
         <!-- Footer -->
