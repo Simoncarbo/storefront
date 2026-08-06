@@ -1,17 +1,7 @@
 export class ProcessResultDisplay {
-    constructor(logElement, initial_text = '') {
+    constructor(logElement) {
         this.logElement = logElement;
-        this.placeholderText = "Ici se construit le texte collaboratif.";
-        this.placeholderSpan = null;
-        this.hasAppendedMessage = false;
-        this.setContent(initial_text);
-    }
-
-    setContent(text) {
-        this.logElement.textContent = text;
-        this.ensureInitialNewline();
-        this.hasAppendedMessage = false;
-        this.addPlaceholder();
+        this.placeholderDiv = null;
     }
 
     ensureInitialNewline() {
@@ -21,22 +11,20 @@ export class ProcessResultDisplay {
     }
 
     clearPlaceholder() {
-        if (this.placeholderSpan) {
-            this.placeholderSpan.remove();
-            this.placeholderSpan = null;
+        if (this.placeholderDiv) {
+            this.placeholderDiv.remove();
+            this.placeholderDiv = null;
         }
     }
 
-    addPlaceholder() {
+    addPlaceholder(placeholderText) {
         this.clearPlaceholder();
-        if (!this.hasAppendedMessage) {
-            this.placeholderSpan = document.createElement('span');
-            this.placeholderSpan.textContent = this.placeholderText;
-            this.placeholderSpan.style.color = '#aaa';
-            this.placeholderSpan.style.fontStyle = 'italic';
-            this.placeholderSpan.style.marginLeft = '0.5em';
-            this.logElement.appendChild(this.placeholderSpan);
-        }
+        this.placeholderDiv = document.createElement('div');
+        this.placeholderDiv.textContent = placeholderText;
+        this.placeholderDiv.style.color = '#aaa';
+        // this.placeholderDiv.style.fontStyle = 'italic';
+        this.placeholderDiv.style.marginLeft = '0.5em';
+        this.logElement.appendChild(this.placeholderDiv);
     }
 
     appendMessage(message) {
@@ -58,7 +46,6 @@ export class ProcessResultDisplay {
                 messageSpan.style.backgroundColor = '';
             }, 5000);
         });
-        this.hasAppendedMessage = true;
         this.scrollToBottom();
     }
 

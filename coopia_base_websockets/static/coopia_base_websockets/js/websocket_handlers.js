@@ -52,15 +52,19 @@ export async function CoopiaSocketOnMessage(e, ideasManager, ProcessResultDispla
         voteButton.start_countdown(phase_duration - elapsedSeconds);
 
         if (data.current_phase === 'generation') {
+            ProcessResultDisplay.addPlaceholder("Génération de propositions");
             ideasManager.reset(true);
             // voteButton.setVoteButtonText('Envoyer');
             voteButton.reset(generation_max_actions);
             last_reported_phase = 'generation';
             ideasManager.addInput('', true, true, true);
+        } else if (data.current_phase === 'selection') {
+            ProcessResultDisplay.addPlaceholder("Sélection d'une proposition");
         }
 
         return;
     } else if (data.type === 'cycle_result') {
+        ProcessResultDisplay.clearPlaceholder();
         ProcessResultDisplay.appendMessage(data.message);
     } else if (data.type === 'participant_count') {
         // Update only the participant count text, preserving the icon
