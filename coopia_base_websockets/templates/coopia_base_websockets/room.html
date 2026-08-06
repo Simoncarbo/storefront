@@ -6,9 +6,10 @@
     <title>Chat Room</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-white min-h-screen flex flex-col items-center px-2 sm:px-4 md:px-6 py-4">
-    <div class="w-full max-w-full sm:max-w-xl bg-white px-2 sm:px-4 md:px-6 py-4 mx-auto">
-        <div class="flex justify-between items-start mb-2">
+<body class="bg-gray-100 h-screen flex flex-col sm:items-center sm:justify-center sm:py-4">
+    <div id="room-container" class="w-full h-screen sm:h-screen sm:max-w-xl bg-white flex flex-col mx-auto md:rounded-lg md:shadow-lg overflow-hidden">
+        <!-- Header -->
+        <div id="header" class="flex justify-between items-start px-2 sm:px-4 md:px-6 py-4 flex-shrink-0">
             <div></div>
             <div id="participant-count" class="text-gray-500 text-sm flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="1.3em" height="1.3em" viewBox="0 0 16 16" class="inline-block">
@@ -18,22 +19,15 @@
                 <span id="participant-count-value">?</span>
             </div>
         </div>
-        <!--<div id="task-description"
-            class="w-full mb-4 px-2 py-1 text-gray-700 text-base font-serif leading-relaxed text-left"
-            style="word-break:break-word; white-space:pre-line; min-height:2em;">
-        </div>-->
         
+        <!-- Middle Frame (scrollable) -->
         <div id="process-result-display" 
-            class="w-full p-2 rounded-lg mb-4 resize-none whitespace-pre-wrap font-mono min-h-[2em] leading-snug text-left text-indent-0">
-        </div>
-
-        <div id="timer-container" class="space-y-4">
-            <!-- Container for cycle timer -->
+            class="flex-1 overflow-y-auto px-2 sm:px-4 md:px-6 py-4 whitespace-pre-wrap font-mono leading-snug text-left">
         </div>
         
-        <div id="participant-input-container" class="flex items-end space-x-0 mt-4">
+        <!-- Footer -->
+        <div id="participant-input-container" class="flex items-end space-x-0 px-2 sm:px-4 md:px-6 py-4 flex-shrink-0">
             <div id="idea-inputs" class="flex-1 space-y-4">
-            <!-- <div id="idea-inputs" class="flex-1 items-center space-x-4"></div> -->
                 <!-- Container for base and added idea inputs -->
             </div>
             <div id="vote-button" class="flex items-center space-x-4">

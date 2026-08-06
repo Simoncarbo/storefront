@@ -125,7 +125,7 @@ export class ProcessResultDisplay {
     }
 
     scrollToBottom() {
-        // this.logElement.scrollTop = this.logElement.scrollHeight;
-        window.scrollTo(0, document.body.scrollHeight);
+        this.logElement.scrollTop = this.logElement.scrollHeight;
+        // window.scrollTo(0, document.body.scrollHeight);
     }
 }
