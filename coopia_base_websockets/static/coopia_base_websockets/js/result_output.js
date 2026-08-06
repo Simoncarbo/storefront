@@ -11,8 +11,6 @@ export class ProcessResultDisplay {
         this.logElement.textContent = text;
         this.ensureInitialNewline();
         this.hasAppendedMessage = false;
-        this.clearAllCarets();
-        this.addCaret(); // Add initial caret at the end of initial_text
         this.addPlaceholder();
     }
 
@@ -20,22 +18,6 @@ export class ProcessResultDisplay {
         if (!this.logElement.textContent.startsWith('\n')) {
             this.logElement.textContent = '\n' + this.logElement.textContent;
         }
-    }
-
-    clearAllCarets() {
-        // Remove all carets
-        const carets = this.logElement.querySelectorAll('.blinking-caret');
-        carets.forEach(caret => caret.remove());
-    }
-
-    updateCaretStyles() {
-        // Set all carets to grey and thin except the last one, which is black and slightly wider
-        const carets = this.logElement.querySelectorAll('.blinking-caret');
-        carets.forEach((caret, idx) => {
-            const isLast = idx === carets.length - 1;
-            caret.style.backgroundColor = isLast ? '#000' : '#ccc';
-            caret.style.width = isLast ? '2px' : '1px';
-        });
     }
 
     clearPlaceholder() {
@@ -77,51 +59,7 @@ export class ProcessResultDisplay {
             }, 5000);
         });
         this.hasAppendedMessage = true;
-        this.addCaret(); // Add new caret after the message (now on the new line)
-        this.updateCaretStyles(); // Update caret colors
         this.scrollToBottom();
-    }
-
-    addCaret() {
-        const caret = document.createElement('span');
-        caret.className = 'blinking-caret inline-block align-middle'; // Removed 'ml-2'
-        caret.style.display = 'inline-block';
-        caret.style.width = '2px';
-        caret.style.height = '1.2em';
-        caret.style.verticalAlign = 'middle';
-        caret.style.backgroundColor = '#000'; // Will be updated by updateCaretStyles
-        this.logElement.appendChild(caret);
-    }
-
-        /**
-     * Returns the n last characters of the last line in the logElement.
-     * If the last line contains 0 characters, returns ''.
-     * Adds '...' to the beginning only if the last line contains more than n characters.
-     * The placeholder, if present, is ignored.
-     * @param {number} n
-     * @returns {string}
-     */
-    getLastNCharsOfLastLine(n) {
-        // Get all child nodes except the placeholder
-        let text = '';
-        this.logElement.childNodes.forEach(node => {
-            if (
-                !(node.nodeType === Node.ELEMENT_NODE &&
-                  node === this.placeholderSpan)
-            ) {
-                text += node.textContent || '';
-            }
-        });
-        const lines = text.split('\n');
-        const lastLine = lines.length > 0 ? lines[lines.length - 1] : '';
-        if (!lastLine || lastLine.length === 0) {
-            return '';
-        }
-        if (lastLine.length > n) {
-            return '...' + lastLine.slice(-n);
-        } else {
-            return lastLine;
-        }
     }
 
     scrollToBottom() {
