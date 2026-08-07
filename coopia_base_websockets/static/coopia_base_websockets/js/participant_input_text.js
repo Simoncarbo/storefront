@@ -1,5 +1,5 @@
-export class IdeaInput {
-    constructor(container,participantSubmitButton, defaultValue = '', autoFocus = false, checked = false, editable = true) {
+export class ParticipantInputText {
+    constructor(container,participantSubmitButton, defaultValue = '', autoFocus = false, editable = true) {
         this.container = container;
         this.editable = editable;
 
@@ -80,7 +80,8 @@ export class IdeaInput {
         this.container.insertBefore(this.wrapper, this.container.firstChild);
         // this.container.appendChild(this.wrapper);
 
-        if (autoFocus) this.input.focus();
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || navigator.maxTouchPoints > 0;
+        if (autoFocus && !isMobile) this.input.focus();
     }
 
     // Add a method to get the value with prefix applied
