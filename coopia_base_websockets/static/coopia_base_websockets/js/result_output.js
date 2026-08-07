@@ -1,16 +1,22 @@
 export class ProcessResultDisplay {
-    constructor(logElement) {
+    constructor(logElement, inputContainerElement) {
         this.logElement = logElement;
+        this.inputContainerElement = inputContainerElement;
         this.placeholderDiv = null;
+        this.resizeObservers = [];
 
-        if (typeof ResizeObserver !== 'undefined') {
-            this.resizeObserver = new ResizeObserver(() => {
-                if (this.isScrolledToBottom()) {
-                    this.scrollToBottom(true);
-                }
-            });
-            this.resizeObserver.observe(this.logElement);
-        }
+        this.followBottom = true;
+        this.logElement.addEventListener("scroll", () => {
+            this.followBottom = this.isScrolledToBottom();
+        });
+        this.handleResize = () => {
+            if (this.followBottom) {
+                this.scrollToBottom();
+            }
+        };
+
+        this.observeResize(this.inputContainerElement);
+        window.addEventListener('resize', this.handleResize);
     }
 
     clearPlaceholder() {
@@ -20,32 +26,20 @@ export class ProcessResultDisplay {
         }
     }
 
-    isScrolledToBottom() {
-        return this.logElement.scrollHeight - this.logElement.scrollTop - this.logElement.clientHeight <= 1;
-    }
-
     addPlaceholder(placeholderText) {
-        const shouldFollow = this.isScrolledToBottom();
-
         this.clearPlaceholder();
         this.placeholderDiv = document.createElement('div');
         this.placeholderDiv.textContent = placeholderText;
         this.placeholderDiv.style.color = '#aaa';
-        // this.placeholderDiv.style.fontStyle = 'italic';
-        // this.placeholderDiv.style.marginLeft = '0.5em';
         this.logElement.appendChild(this.placeholderDiv);
 
-        if (shouldFollow) {
-            this.scrollToBottom(true);
-        }
+        this.handleResize()
     }
 
     appendMessage(message) {
         if (message.trim() === '') {
             return; // Do not append empty messages
         }
-
-        const shouldFollow = this.isScrolledToBottom();
         this.clearPlaceholder();
 
         const messageDiv = document.createElement('div');
@@ -57,21 +51,36 @@ export class ProcessResultDisplay {
             messageDiv.style.backgroundColor = '';
         }, 5000);
 
-        if (shouldFollow) {
-            this.scrollToBottom(true);
-        }
+        this.handleResize()
+    }
+    
+    isScrolledToBottom() {
+        return this.logElement.scrollHeight - this.logElement.scrollTop - this.logElement.clientHeight <= 50;
     }
 
-    scrollToBottom(force = false) {
-        if (force || this.isScrolledToBottom()) {
-            this.logElement.scrollTop = this.logElement.scrollHeight;
+    scrollToBottom() {
+        this.logElement.scrollTop = this.logElement.scrollHeight;
+    }
+
+    observeResize(element) {
+        if (!element || typeof ResizeObserver === 'undefined') {
+            return;
         }
+
+        const resizeObserver = new ResizeObserver(this.handleResize);
+        resizeObserver.observe(element);
+        this.resizeObservers.push(resizeObserver);
     }
 
     disconnect() {
-        if (this.resizeObserver) {
-            this.resizeObserver.disconnect();
-            this.resizeObserver = null;
+        this.resizeObservers.forEach((observer) => {
+            observer.disconnect();
+        });
+        this.resizeObservers = [];
+
+        if (this.handleResize) {
+            window.removeEventListener('resize', this.handleResize);
+            this.handleResize = null;
         }
     }
 }

@@ -71,7 +71,7 @@ function connectWebSocket() {
 connectWebSocket();
 
 const log = document.querySelector('#process-result-display');
-const processResultDisplay = new ProcessResultDisplay(log);
+const processResultDisplay = new ProcessResultDisplay(log, document.getElementById('participant-input-container'));
 
 // Vote button functionality
 const button_container = document.querySelector('#vote-button');
