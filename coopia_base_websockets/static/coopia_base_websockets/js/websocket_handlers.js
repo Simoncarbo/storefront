@@ -7,7 +7,7 @@ let selection_max_actions = 5;
 let last_reported_phase = null;
 
 
-export async function CoopiaSocketOnMessage(e, ideasManager, ProcessResultDisplay,voteButton, overlay) {
+export async function CoopiaSocketOnMessage(e, ideasManager, ProcessResultDisplay,participantSubmitButton) {
     const data = JSON.parse(e.data);
 
     if (data.type === 'process_info') {
@@ -49,13 +49,13 @@ export async function CoopiaSocketOnMessage(e, ideasManager, ProcessResultDispla
         // }
         // // start (or restart) timer using derived start timestamp so progress reflects elapsed time
         // cycleTimer.start(startTs);
-        voteButton.start_countdown(phase_duration - elapsedSeconds);
+        participantSubmitButton.start_countdown(phase_duration - elapsedSeconds);
 
         if (data.current_phase === 'generation') {
             ProcessResultDisplay.addPlaceholder("Génération de propositions");
             ideasManager.reset(true);
-            // voteButton.setVoteButtonText('Envoyer');
-            voteButton.reset(generation_max_actions);
+            // participantSubmitButton.setparticipantSubmitButtonText('Envoyer');
+            participantSubmitButton.reset(generation_max_actions);
             last_reported_phase = 'generation';
             ideasManager.addInput('', true, true, true);
         } else if (data.current_phase === 'selection') {
@@ -75,8 +75,8 @@ export async function CoopiaSocketOnMessage(e, ideasManager, ProcessResultDispla
         return;
     } else if (data.type === 'ideas') {
         if (last_reported_phase !== 'selection') {
-            // voteButton.setVoteButtonText('Envoyer préférence');
-            voteButton.reset(selection_max_actions);
+            // participantSubmitButton.setparticipantSubmitButtonText('Envoyer préférence');
+            participantSubmitButton.reset(selection_max_actions);
         }
 
         // data.ideas is expected to be an array of ideas

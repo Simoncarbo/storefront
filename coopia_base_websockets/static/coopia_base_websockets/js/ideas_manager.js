@@ -1,15 +1,15 @@
-import { IdeaInput } from './idea_input.js';
+import { IdeaInput } from './participant_input_text.js';
 
 export class IdeasManager {
-    constructor(container,voteButton) {
+    constructor(container,participantSubmitButton) {
         this.container = container;
         this.instances = [];
         this.radioName = 'selectedIdeaInput';
         this.selectedIndex = null; // Track which input is selected
-        this.voteButton = voteButton; // connected VoteButton
+        this.participantSubmitButton = participantSubmitButton; // connected participantSubmitButton
         this.participant_input = {'participant_proposal': null}; // Track participant input
 
-        this.voteButton.connect(this);
+        this.participantSubmitButton.connect(this);
     }
 
     reset(remove = false) {
@@ -18,7 +18,7 @@ export class IdeasManager {
             if (typeof this.instances[0].reset === 'function') {
                 this.instances[0].reset();
             } 
-            this.voteButton.setNotClickableAppearance();
+            this.participantSubmitButton.setNotClickableAppearance();
             return;
         }
 
@@ -31,12 +31,12 @@ export class IdeasManager {
         });
         this.instances = [];
         this.selectedIndex = 0;
-        this.voteButton.setNotClickableAppearance();
+        this.participantSubmitButton.setNotClickableAppearance();
     }
 
     addInput(defaultValue = '', autoFocus = false, checked = false, editable = false) {
-        if (this.voteButton.clickCount < this.voteButton.maxClicks) {
-            const input = new IdeaInput(this.container, this.voteButton, defaultValue, autoFocus, checked, editable);
+        if (this.participantSubmitButton.clickCount < this.participantSubmitButton.maxClicks) {
+            const input = new IdeaInput(this.container, this.participantSubmitButton, defaultValue, autoFocus, checked, editable);
             // Create radio button and insert before the input's wrapper
             input.radio = document.createElement('input');
             input.radio.type = 'radio';
@@ -46,8 +46,8 @@ export class IdeasManager {
             // The radio value will be set dynamically when requested
             input.radio.addEventListener('change', () => {
                 this.selectedIndex = this.instances.indexOf(input);
-                if (this.voteButton.clickCount < this.voteButton.maxClicks) {
-                        this.voteButton.setClickableAppearance();
+                if (this.participantSubmitButton.clickCount < this.participantSubmitButton.maxClicks) {
+                        this.participantSubmitButton.setClickableAppearance();
                 }
             });
             // Insert radio before the input's wrapper only if selection phase
@@ -60,10 +60,10 @@ export class IdeasManager {
             // Listen for changes to the input and update participant_input
             input.input.addEventListener('input', () => {
                 this.participant_input = {'participant_proposal': input.getValue()};
-                if (input.getValue().trim() !== '' && this.voteButton.clickCount < this.voteButton.maxClicks) {
-                    this.voteButton.setClickableAppearance();
+                if (input.getValue().trim() !== '' && this.participantSubmitButton.clickCount < this.participantSubmitButton.maxClicks) {
+                    this.participantSubmitButton.setClickableAppearance();
                 } else {
-                    this.voteButton.setNotClickableAppearance();
+                    this.participantSubmitButton.setNotClickableAppearance();
                 }
             });
 

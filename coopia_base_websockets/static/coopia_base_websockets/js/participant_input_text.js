@@ -1,5 +1,5 @@
 export class IdeaInput {
-    constructor(container,voteButton, defaultValue = '', autoFocus = false, checked = false, editable = true) {
+    constructor(container,participantSubmitButton, defaultValue = '', autoFocus = false, checked = false, editable = true) {
         this.container = container;
         this.editable = editable;
 
@@ -45,8 +45,8 @@ export class IdeaInput {
         this.input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                if (voteButton) {
-                    voteButton.voteButton.click();
+                if (participantSubmitButton) {
+                    participantSubmitButton.submitButton.click();
                 }
             }
         });
