@@ -1,7 +1,6 @@
 import { IdeasManager } from './ideas_manager.js';
 import { CoopiaSocketOnMessage } from './websocket_handlers.js';
 import { ProcessResultDisplay } from './result_output.js';
-import { ParticipantSubmitButton } from './participant_submit_button.js';
 
 const roomName = JSON.parse(document.getElementById('room-name').textContent);
 
@@ -72,12 +71,11 @@ connectWebSocket();
 const log = document.querySelector('#process-result-display');
 const processResultDisplay = new ProcessResultDisplay(log, document.getElementById('participant-container'));
 
-// Vote button functionality
-const button_container = document.querySelector('#participant-submit-button');
-const participantSubmitButton = new ParticipantSubmitButton(button_container, coopiaSocket);
+// participant input functionality
+const participant_submit_button_container = document.querySelector('#participant-submit-button');
+const participant_input_container = document.getElementById('participant-input-container')
+const ideasManager = new IdeasManager(participant_input_container,participant_submit_button_container, coopiaSocket);
 
-const ideasManager = new IdeasManager(document.getElementById('participant-input-container'),participantSubmitButton);
-
-onmessageHandler = e => CoopiaSocketOnMessage(e, ideasManager,processResultDisplay,participantSubmitButton);
+onmessageHandler = e => CoopiaSocketOnMessage(e, ideasManager,processResultDisplay);
 coopiaSocket.onmessage = onmessageHandler;
 

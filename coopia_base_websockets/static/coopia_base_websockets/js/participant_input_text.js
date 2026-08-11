@@ -1,17 +1,9 @@
 export class ParticipantInputText {
-    constructor(container,participantSubmitButton, defaultValue = '', autoFocus = false, editable = true) {
+    constructor(container, defaultValue = '', autoFocus = false, editable = true) {
         this.container = container;
         this.editable = editable;
 
-        // Create wrapper
-        this.wrapper = document.createElement('div');
-        this.wrapper.className = "flex items-center w-full space-x-2";
-
-        // Create form and input
-        this.form = document.createElement('form');
-        this.form.className = "flex items-center space-x-2 flex-grow relative";
-
-        // Wrapper styled like an input
+        // Wrapper contains textarea and character counter
         this.inputWrapper = document.createElement('div');
         this.inputWrapper.className = "flex items-start border border-gray-300 rounded-lg px-2 pr-10 w-full bg-white relative";
 
@@ -41,16 +33,6 @@ export class ParticipantInputText {
         this.inputWrapper.appendChild(this.input);
         this.inputWrapper.appendChild(this.counter);
 
-        // Handle Enter key to submit idea
-        this.input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                if (participantSubmitButton) {
-                    participantSubmitButton.submitButton.click();
-                }
-            }
-        });
-
         // Auto-resize height to fit content and update counter
         const resizeTextarea = () => {
             this.input.style.height = 'auto'; // reset first
@@ -73,23 +55,13 @@ export class ParticipantInputText {
             updateCounter();
         }, 0); // initial resize and counter update after DOM render
 
-        // Insert elements
-        this.form.appendChild(this.inputWrapper);
-        this.wrapper.appendChild(this.form);
-        // new ideas are added to the top of the container.
-        this.container.insertBefore(this.wrapper, this.container.firstChild);
-        // this.container.appendChild(this.wrapper);
+        // Insert into container
+        this.container.appendChild(this.inputWrapper);
 
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || navigator.maxTouchPoints > 0;
-        if (autoFocus && !isMobile) this.input.focus();
+        if (autoFocus) this.input.focus();
     }
 
-    // Add a method to get the value with prefix applied
-    getValue() {
-        return this.input.value;
-    }
-
-    reset() {
+    onsubmission() {
         this.input.value = '';
         this.input.style.height = 'auto';
         this.input.style.height = this.input.scrollHeight + 'px';
@@ -98,6 +70,6 @@ export class ParticipantInputText {
     }
 
     remove() {
-        this.wrapper?.parentNode?.removeChild(this.wrapper);
+        this.container.removeChild(this.inputWrapper);
     }
 }

@@ -60,18 +60,20 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if text_data == 'ping':
             return
         text_data_json = json.loads(text_data)
-        if text_data_json.get("type") == "idea":
-            idea = text_data_json["idea"]
-            await self.channel_layer.add_idea(self.room_group_name,idea)
+        if text_data_json.get("type") == "participant_input":
+            # If client sent textual idea payload, check for 'text' key
+            if "text" in text_data_json:
+                idea = text_data_json.get("text")
+                await self.channel_layer.add_idea(self.room_group_name, idea)
 
-        # client sending binary preference between two ideas
-        if text_data_json.get("type") == "preference":
-            # expected payload: {"type":"preference", "winner": "...", "loser":"..."}
-            winner = text_data_json.get("winner")
-            loser = text_data_json.get("loser")
-            if winner and loser:
-                await self.channel_layer.register_preference(self.room_group_name, winner, loser)
-                await self.send_random_ideas() 
+            # client sending binary preference between two ideas
+            if ("winner" in text_data_json) and ("loser" in text_data_json):
+                # expected payload: {"type":"participant_input", "winner": "...", "loser":"..."}
+                winner = text_data_json.get("winner")
+                loser = text_data_json.get("loser")
+                if winner and loser:
+                    await self.channel_layer.register_preference(self.room_group_name, winner, loser)
+                    await self.send_random_ideas() 
         
     async def send_participant_count(self, event):
         event["type"] = "participant_count"

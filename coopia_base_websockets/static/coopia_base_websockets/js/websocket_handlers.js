@@ -7,7 +7,7 @@ let selection_max_actions = 5;
 let last_reported_phase = null;
 
 
-export async function CoopiaSocketOnMessage(e, ideasManager, ProcessResultDisplay,participantSubmitButton) {
+export async function CoopiaSocketOnMessage(e, ideasManager, ProcessResultDisplay) {
     const data = JSON.parse(e.data);
 
     if (data.type === 'process_info') {
@@ -49,17 +49,19 @@ export async function CoopiaSocketOnMessage(e, ideasManager, ProcessResultDispla
         // }
         // // start (or restart) timer using derived start timestamp so progress reflects elapsed time
         // cycleTimer.start(startTs);
-        participantSubmitButton.start_countdown(phase_duration - elapsedSeconds);
+
+        ideasManager.showSubmitButton();
+        ideasManager.participantSubmitButton.start_countdown(phase_duration - elapsedSeconds);
 
         if (data.current_phase === 'generation') {
             ProcessResultDisplay.addPlaceholder("Génération de propositions");
-            ideasManager.reset(true);
-            // participantSubmitButton.setparticipantSubmitButtonText('Envoyer');
-            participantSubmitButton.reset(generation_max_actions);
+            ideasManager.resetSubmissions(generation_max_actions);
+            ideasManager.showTextInput();
             last_reported_phase = 'generation';
-            ideasManager.addInput('', true, true, true);
         } else if (data.current_phase === 'selection') {
             ProcessResultDisplay.addPlaceholder("Sélection d'une proposition");
+            ideasManager.resetSubmissions(selection_max_actions);
+            last_reported_phase = 'selection';
         }
 
         return;
@@ -74,20 +76,21 @@ export async function CoopiaSocketOnMessage(e, ideasManager, ProcessResultDispla
         }
         return;
     } else if (data.type === 'ideas') {
-        if (last_reported_phase !== 'selection') {
+        // if (last_reported_phase !== 'selection') {
             // participantSubmitButton.setparticipantSubmitButtonText('Envoyer préférence');
-            participantSubmitButton.reset(selection_max_actions);
-        }
+            // participantSubmitButton.reset(selection_max_actions);
+        // }
 
         // data.ideas is expected to be an array of ideas
         if (Array.isArray(data.ideas)) {
-            ideasManager.reset(true);
-            for (let idea of data.ideas) {
-                ideasManager.addInput(idea);
-            }
+            // ideasManager.reset(true);
+            // for (let idea of data.ideas) {
+            //     ideasManager.addInput(idea);
+            // }
+            ideasManager.showChoiceInput('selection',data.ideas,'rows',false);
         }
-
-        last_reported_phase = 'selection';
+        
+        // last_reported_phase = 'selection';
     } else {
         console.error('Unknown message type:', data.type);
     }

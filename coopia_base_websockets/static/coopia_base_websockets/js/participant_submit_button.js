@@ -1,10 +1,5 @@
 export class ParticipantSubmitButton {
-    constructor(targetElement, coopiaSocket, maxClicks = 5) {
-        this.coopiaSocket = coopiaSocket;
-        this.ideasManager = null;
-        this.clickCount = 0;
-        this.maxClicks = maxClicks;
-
+    constructor(targetElement) {
         this.submitButton = document.createElement('button');
         this.submitButton.className = 'btn btn-primary ml-2';
         this.submitButton.setAttribute('aria-label', 'Envoyer');
@@ -43,8 +38,6 @@ export class ParticipantSubmitButton {
 
         // Apply initial clickable appearance
         this.setNotClickableAppearance();
-
-        this.setOnClick();
 
         targetElement.appendChild(this.submitButton);
     }
@@ -93,48 +86,6 @@ export class ParticipantSubmitButton {
             // keep a placeholder symbol if empty
             if (!this.voteTimerText.textContent) this.voteTimerText.textContent = '?';
         }
-    }
-
-    // connect a IdeasManager instance so it can gather idea values on click
-    connect(ideasManager) {
-        this.ideasManager = ideasManager;
-    }
-
-    disconnect() {
-        this.ideasManager = null;
-    }
-
-    setOnClick() {
-        this.submitButton.onclick = () => {
-            const selectedIdea = this.ideasManager.getSelectedIdeaValue();
-            const notSelectedIdea = this.ideasManager.getNotSelectedIdeaValue()
-
-            if (selectedIdea === null || selectedIdea === "") {
-                return;
-            }
-            
-            if (notSelectedIdea === null) {
-                this.coopiaSocket.send(JSON.stringify({
-                    type: 'idea',
-                    idea: selectedIdea
-                }));
-            } else {
-                this.coopiaSocket.send(JSON.stringify({
-                    type: 'preference',
-                    winner: selectedIdea,
-                    loser: notSelectedIdea
-                }));
-            }
-
-            this.ideasManager.reset();    
-
-            this.clickCount++;
-            this.updateClickCounter();
-
-            if (this.clickCount >= this.maxClicks) {
-                this.setNotClickableAppearance();
-            }
-        };
     }
 
     start_countdown(duration) {
@@ -200,18 +151,7 @@ export class ParticipantSubmitButton {
         }, 180);
     }
 
-    reset(maxClicks = null) {
-        if (maxClicks !== null) {
-            this.maxClicks = maxClicks;
-        }
-
-        // Reset click counter
-        this.clickCount = 0;
-        this.updateClickCounter();
-    }
-
-    
-    updateClickCounter() {
-        // this.voteStatusText.textContent = `${this.clickCount} / ${this.maxClicks}`;
+    remove() {
+        this.targetElement.removeChild(this.submitButton);
     }
 }
