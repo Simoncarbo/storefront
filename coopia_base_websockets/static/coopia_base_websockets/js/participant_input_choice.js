@@ -1,13 +1,12 @@
 export class ParticipantInputChoice {
-    constructor(container, items, layout, multiple_select=false) {
+    constructor(container, items, boxed = false) {
         this.container = container;
         this.items = Array.isArray(items) ? items : [];
-        this.layout = layout === 'rows' ? 'rows' : 'columns';
-        this.multiple_select = !!multiple_select;
-
-        this._selected = new Set();
+        this.boxed = !!boxed;
+        
         this.onChange = null; // callback(selectedItemsArray)
 
+        this._selected = null; // Will store the selected index
         this._root = null;
         this._cells = [];
 
@@ -17,31 +16,17 @@ export class ParticipantInputChoice {
     _render() {
         // clear container
         while (this.container.firstChild) this.container.removeChild(this.container.firstChild);
+        
+        // clear cells
+        this._cells = [];
 
         const root = document.createElement('div');
-        root.className = 'participant-choice-grid';
-        // styles to make grid take full width, rounded corners
+        root.className = 'participant-choice-radio-group';
+        root.style.display = 'flex';
+        root.style.flexDirection = 'column';
+        root.style.gap = '8px';
         root.style.width = '100%';
-        root.style.display = 'grid';
-        root.style.gap = '6px';
-        root.style.padding = '6px';
         root.style.boxSizing = 'border-box';
-        root.style.borderRadius = '8px';
-        root.style.overflow = 'hidden';
-        root.style.alignItems = 'stretch';
-        root.style.justifyItems = 'stretch';
-
-        if (this.layout === 'columns') {
-            // horizontal row of columns that share available width
-            root.style.gridAutoFlow = 'column';
-            root.style.gridAutoColumns = '1fr';
-            root.style.gridAutoRows = 'auto';
-            root.style.alignItems = 'center';
-            root.style.justifyItems = 'center';
-        } else {
-            // rows layout: single column with full-width cells
-            root.style.gridTemplateColumns = '1fr';
-        }
 
         this.items.forEach((item, idx) => {
             const cell = this._createCell(item, idx);
@@ -55,52 +40,56 @@ export class ParticipantInputChoice {
 
     _createCell(item, idx) {
         const cell = document.createElement('div');
-        cell.className = 'participant-choice-cell';
+        cell.className = 'participant-choice-radio-cell';
         cell.dataset.index = String(idx);
-        cell.tabIndex = 0;
-        cell.style.userSelect = 'none';
-        cell.style.cursor = 'pointer';
-        cell.style.padding = '12px';
         cell.style.display = 'flex';
         cell.style.alignItems = 'center';
-        cell.style.justifyContent = this.layout === 'columns' ? 'center' : 'flex-start';
-        cell.style.border = '1px solid rgba(0,0,0,0.08)';
-        cell.style.borderRadius = '6px';
-        cell.style.background = 'white';
-        cell.style.transition = 'box-shadow 0.12s, transform 0.08s';
+        cell.style.cursor = 'pointer';
+        cell.style.userSelect = 'none';
+        cell.style.gap = '12px';
 
-        const txt = document.createElement('div');
-        txt.className = 'participant-choice-text';
-        txt.textContent = String(item);
-        txt.style.width = '100%';
-        txt.style.textAlign = this.layout === 'columns' ? 'center' : 'left';
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = `participant-choice-${Math.random()}`;
+        radio.value = String(idx);
+        radio.style.cursor = 'pointer';
+        radio.style.flexShrink = 0;
 
-        cell.appendChild(txt);
+        const box = document.createElement('div');
+        box.className = 'participant-choice-radio-box';
+        box.style.flex = '1';
+        box.style.cursor = 'pointer';
+
+        if (this.boxed) {
+            box.style.padding = '12px';
+            box.style.border = '1px solid rgba(0,0,0,0.08)';
+            box.style.borderRadius = '6px';
+            box.style.background = 'white';
+        }
+
+        const label = document.createElement('label');
+        label.textContent = String(item);
+        label.style.cursor = 'pointer';
+        label.style.margin = '0';
+
+        box.appendChild(label);
+        cell.appendChild(radio);
+        cell.appendChild(box);
 
         const toggleSelect = (e) => {
             e && e.preventDefault();
             const index = Number(cell.dataset.index);
-            if (this.multiple_select) {
-                if (this._selected.has(index)) {
-                    this._selected.delete(index);
-                    this._applyUnselected(cell);
-                } else {
-                    this._selected.add(index);
-                    this._applySelected(cell);
-                }
-            } else {
-                if (this._selected.has(index)) {
-                    // unselect
-                    this._selected.delete(index);
-                    this._applyUnselected(cell);
-                } else {
-                    // unselect previous
-                    this._cells.forEach(c => this._applyUnselected(c));
-                    this._selected.clear();
-                    this._selected.add(index);
-                    this._applySelected(cell);
-                }
-            }
+
+            // Deselect previous
+            this._cells.forEach(c => {
+                const r = c.querySelector('input[type="radio"]');
+                if (r) r.checked = false;
+            });
+
+            // Select current
+            radio.checked = true;
+            radio.focus();
+            this._selected = index;
 
             // notify
             if (typeof this.onChange === 'function') {
@@ -108,39 +97,17 @@ export class ParticipantInputChoice {
             }
         };
 
-        cell.addEventListener('click', toggleSelect);
-        cell.addEventListener('keydown', (ev) => {
-            if (ev.key === 'Enter' || ev.key === ' ') {
-                ev.preventDefault();
-                toggleSelect(ev);
-            }
-        });
+        box.addEventListener('click', toggleSelect);
+        radio.addEventListener('change', toggleSelect);
 
         return cell;
     }
 
-    _applySelected(cell) {
-        cell.style.boxShadow = '0 4px 10px rgba(0,0,0,0.08)';
-        cell.style.background = '#f0f9ff';
-        cell.style.border = '1px solid rgba(0,124,255,0.25)';
-        cell.style.fontWeight = '600';
-        cell.setAttribute('aria-pressed', 'true');
-    }
-
-    _applyUnselected(cell) {
-        cell.style.boxShadow = 'none';
-        cell.style.background = 'white';
-        cell.style.border = '1px solid rgba(0,0,0,0.08)';
-        cell.style.fontWeight = '400';
-        cell.setAttribute('aria-pressed', 'false');
-    }
-
     getSelectedItems() {
-        const selected = [];
-        for (const idx of this._selected) {
-            selected.push(this.items[idx]);
+        if (this._selected !== null) {
+            return [this.items[this._selected]];
         }
-        return selected;
+        return [];
     }
 
     remove() {
@@ -148,7 +115,7 @@ export class ParticipantInputChoice {
             this._root.parentNode.removeChild(this._root);
             this._root = null;
             this._cells = [];
-            this._selected.clear();
+            this._selected = null;
         }
     }
 

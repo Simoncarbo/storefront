@@ -16,6 +16,18 @@ export class IdeasManager {
         this.maxSubmissions = null;
 
         this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || navigator.maxTouchPoints > 0;
+        
+        // Handle Enter key to submit
+        this.participant_input_container.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (this.participantSubmitButton && !this.isMobile) {
+                    if (this.participantSubmitButton.submitButton.disabled===false) {
+                        this.participantSubmitButton.submitButton.click();
+                    }
+                }
+            }
+        });
     }
 
     resetSubmissions(maxSubmissions) {
@@ -54,18 +66,6 @@ export class IdeasManager {
         const editable=true;
         this.current_input_form = new ParticipantInputText(this.participant_input_container, defaultValue, autoFocus, editable);
         this.participantSubmitButton.setNotClickableAppearance();
-
-        // Handle Enter key to submit idea
-        this.current_input_form.input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                if (this.participantSubmitButton && !this.isMobile) {
-                    if (this.participantSubmitButton.submitButton.disabled===false) {
-                        this.participantSubmitButton.submitButton.click();
-                    }
-                }
-            }
-        });
 
         // Listen for changes to the input and update participant_input
         this.current_input_form.input.addEventListener('input', () => {
@@ -110,27 +110,5 @@ export class IdeasManager {
                 }
             }
         };
-    }
-
-    reset(remove = false) {
-        // If there's only one instance, reset that instance instead of removing it
-        if (this.instances.length === 1 && !remove) {
-            if (typeof this.instances[0].reset === 'function') {
-                this.instances[0].reset();
-            } 
-            this.participantSubmitButton.setNotClickableAppearance();
-            return;
-        }
-
-        this.instances.forEach(instance => {
-            // Remove associated radio if present
-            if (instance.radio && instance.radio.parentNode) {
-                instance.radio.parentNode.removeChild(instance.radio);
-            }
-            instance.remove();
-        });
-        this.instances = [];
-        this.selectedIndex = 0;
-        this.participantSubmitButton.setNotClickableAppearance();
     }
 }
