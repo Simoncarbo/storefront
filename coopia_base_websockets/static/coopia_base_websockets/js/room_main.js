@@ -1,4 +1,4 @@
-import { IdeasManager } from './ideas_manager.js';
+import { ParticipantHandler } from './participant_handlers.js';
 import { CoopiaSocketOnMessage } from './websocket_handlers.js';
 import { ProcessResultDisplay } from './result_output.js';
 
@@ -74,8 +74,8 @@ const processResultDisplay = new ProcessResultDisplay(log, document.getElementBy
 // participant input functionality
 const participant_submit_button_container = document.querySelector('#participant-submit-button');
 const participant_input_container = document.getElementById('participant-input-container')
-const ideasManager = new IdeasManager(participant_input_container,participant_submit_button_container, coopiaSocket);
+const participantHandler = new ParticipantHandler(participant_input_container,participant_submit_button_container, coopiaSocket);
 
-onmessageHandler = e => CoopiaSocketOnMessage(e, ideasManager,processResultDisplay);
+onmessageHandler = e => CoopiaSocketOnMessage(e, participantHandler,processResultDisplay);
 coopiaSocket.onmessage = onmessageHandler;
 

@@ -7,7 +7,7 @@ let selection_max_actions = 5;
 let last_reported_phase = null;
 
 
-export async function CoopiaSocketOnMessage(e, ideasManager, ProcessResultDisplay) {
+export async function CoopiaSocketOnMessage(e, participantHandler, ProcessResultDisplay) {
     const data = JSON.parse(e.data);
 
     if (data.type === 'process_info') {
@@ -50,17 +50,17 @@ export async function CoopiaSocketOnMessage(e, ideasManager, ProcessResultDispla
         // // start (or restart) timer using derived start timestamp so progress reflects elapsed time
         // cycleTimer.start(startTs);
 
-        ideasManager.showSubmitButton();
-        ideasManager.participantSubmitButton.start_countdown(phase_duration - elapsedSeconds);
+        participantHandler.showSubmitButton();
+        participantHandler.participantSubmitButton.start_countdown(phase_duration - elapsedSeconds);
 
         if (data.current_phase === 'generation') {
             ProcessResultDisplay.addPlaceholder("Génération de propositions");
-            ideasManager.resetSubmissions(generation_max_actions);
-            ideasManager.showTextInput();
+            participantHandler.resetSubmissions(generation_max_actions);
+            participantHandler.showTextInput();
             last_reported_phase = 'generation';
         } else if (data.current_phase === 'selection') {
             ProcessResultDisplay.addPlaceholder("Sélection d'une proposition");
-            ideasManager.resetSubmissions(selection_max_actions);
+            participantHandler.resetSubmissions(selection_max_actions);
             last_reported_phase = 'selection';
         }
 
@@ -83,11 +83,11 @@ export async function CoopiaSocketOnMessage(e, ideasManager, ProcessResultDispla
 
         // data.ideas is expected to be an array of ideas
         if (Array.isArray(data.ideas)) {
-            // ideasManager.reset(true);
+            // participantHandler.reset(true);
             // for (let idea of data.ideas) {
-            //     ideasManager.addInput(idea);
+            //     participantHandler.addInput(idea);
             // }
-            ideasManager.showChoiceInput('selection',data.ideas,'rows',false);
+            participantHandler.showChoiceInput('selection',data.ideas,'rows',false);
         }
         
         // last_reported_phase = 'selection';
