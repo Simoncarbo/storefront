@@ -49,8 +49,12 @@ export class ParticipantHandler {
                 ...this.participant_input
             }));
 
-            this.current_input_form.onsubmission();   
             this.submissionsDone++ 
+            if (this.submissionsDone === this.maxSubmissions) {
+                this.showMaxSubmissionsReached()
+            } else {
+                this.current_input_form.onsubmission(this.submissionsDone);
+            }
             this.participantSubmitButton.setNotClickableAppearance();
         };
     }
@@ -72,7 +76,7 @@ export class ParticipantHandler {
             const input_value = this.current_input_form.input.value;
             this.participant_input = {'text': input_value};
             // sets SubmitButton clickable once input is not null
-            if (input_value.trim() !== '' && this.submissionsDone < this.maxSubmissions) {
+            if (input_value.trim() !== '') {
                 this.participantSubmitButton.setClickableAppearance();
             } else {
                 this.participantSubmitButton.setNotClickableAppearance();
@@ -81,6 +85,9 @@ export class ParticipantHandler {
     }
 
     showChoiceInput(phase, items, layout='rows', multiple_select=false) {
+        if (this.submissionsDone === this.maxSubmissions) {
+                return;
+        } 
         // remove any existing input form
         if (this.current_input_form) {
             this.current_input_form.remove();
@@ -103,12 +110,30 @@ export class ParticipantHandler {
             }
 
             if (this.participantSubmitButton) {
-                if (selectedItems.length > 0 && this.submissionsDone < (this.maxSubmissions || Infinity)) {
+                if (selectedItems.length > 0) {
                     this.participantSubmitButton.setClickableAppearance();
                 } else {
                     this.participantSubmitButton.setNotClickableAppearance();
                 }
             }
         };
+    }
+
+    showMaxSubmissionsReached() {
+        // if curren_input_form is not null, remove it
+        if (this.current_input_form) {
+            this.current_input_form.remove();
+            this.current_input_form = null;
+        }
+
+        const message = document.createElement('div');
+        message.textContent = 'Nombre maximum de soumissions atteint.';
+        message.style.fontStyle = 'italic';
+        message.style.display = 'flex';
+        message.style.alignItems = 'center';
+        message.style.justifyContent = 'center';
+        message.style.minHeight = '3rem';
+        this.participant_input_container.appendChild(message);
+        
     }
 }

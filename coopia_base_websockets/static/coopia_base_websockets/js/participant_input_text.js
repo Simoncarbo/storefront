@@ -55,13 +55,17 @@ export class ParticipantInputText {
             updateCounter();
         }, 0); // initial resize and counter update after DOM render
 
+        // clear container
+        while (this.container.firstChild) this.container.removeChild(this.container.firstChild);
+        
         // Insert into container
         this.container.appendChild(this.inputWrapper);
 
         if (autoFocus) this.input.focus();
     }
 
-    onsubmission() {
+    onsubmission(submissionsDone) {
+        if (this.editable)  this.input.placeholder = `${submissionsDone + 1}ème proposition anonyme`;
         this.input.value = '';
         this.input.style.height = 'auto';
         this.input.style.height = this.input.scrollHeight + 'px';

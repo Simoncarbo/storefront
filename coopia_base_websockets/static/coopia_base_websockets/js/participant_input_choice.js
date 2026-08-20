@@ -54,6 +54,11 @@ export class ParticipantInputChoice {
         radio.value = String(idx);
         radio.style.cursor = 'pointer';
         radio.style.flexShrink = 0;
+        radio.style.resize = '2em';
+        radio.style.transform = 'scale(1.5)';
+        radio.style.cursor = 'pointer';
+        radio.style.accentColor = '#6D28D9';
+    
 
         const box = document.createElement('div');
         box.className = 'participant-choice-radio-box';
@@ -119,7 +124,7 @@ export class ParticipantInputChoice {
         }
     }
 
-    onsubmission() {
+    onsubmission(submissionsDone) {
         return;
     }
 }
