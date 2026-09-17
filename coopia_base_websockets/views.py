@@ -40,8 +40,8 @@ def room_admin_action(request, room_name):
             if channel_layer and hasattr(channel_layer, "start_global_tick_loop"):
                     current_time = time.time()
                     async_to_sync(channel_layer.set_cycle_params)(group=room_name, 
-                                                         generation_duration=10, 
-                                                         selection_duration=30, 
+                                                         generation_duration=20, 
+                                                         selection_duration=15, 
                                                          nb_selections=1)
         
                     async_to_sync(channel_layer.set_cycle_state)(group=room_name, 

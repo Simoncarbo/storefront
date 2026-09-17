@@ -12,12 +12,18 @@ export class ParticipantSubmitButton {
         //         <span class="vote-timer-text" style="font-size:0.75rem;font-weight:500;color:currentColor;line-height:1;">?</span>
         //     </div>
         // `;
-        this.submitButton.innerHTML = `
-            <div class="vote-button-content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.25rem;padding-block:0.25rem;">
-                <svg width="52" height="44" viewBox="0 0 52 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M23.712 1.83126C24.2045 0.990296 25.0151 0.376649 25.9657 0.125083C26.9163 -0.126483 27.9292 0.00459937 28.782 0.489543L37.1429 5.2552C37.9959 5.74134 38.6184 6.54203 38.8733 7.48113C39.1283 8.42024 38.9948 9.42083 38.5023 10.2628L33.7814 18.3388H37.1429C37.6354 18.3388 38.1078 18.5319 38.4561 18.8756C38.8043 19.2194 39 19.6856 39 20.1717C39 20.6578 38.8043 21.1241 38.4561 21.4678C38.1078 21.8115 37.6354 22.0047 37.1429 22.0047H14.8571C14.3646 22.0047 13.8922 21.8115 13.5439 21.4678C13.1957 21.1241 13 20.6578 13 20.1717C13 19.6856 13.1957 19.2194 13.5439 18.8756C13.8922 18.5319 14.3646 18.3388 14.8571 18.3388H17.3643C16.7539 17.7726 16.3554 17.0195 16.2333 16.2016C16.1113 15.3837 16.2729 14.5492 16.692 13.8334L23.712 1.83126ZM24.5923 18.3388H29.4914L35.2857 8.42986L26.9286 3.6642L19.9086 15.6663L24.5923 18.3388ZM13.0557 11.007H14.0549L13.4717 12.0004C12.9629 12.8729 12.6546 13.8041 12.5357 14.7462C12.1353 14.8618 11.7859 15.1072 11.544 15.4427L4.13771 25.6705H47.8623L40.456 15.4427C40.3355 15.2753 40.1873 15.1291 40.0177 15.0101L41.7189 12.0958C41.7709 12.0078 41.8204 11.9173 41.8674 11.8245C42.4996 12.2084 43.0477 12.7132 43.4794 13.3092L50.9637 23.647C51.636 24.5818 52 25.6999 52 26.8436V38.5012C52 39.9595 51.413 41.3582 50.3682 42.3894C49.3233 43.4207 47.9062 44 46.4286 44H5.57143C4.09379 44 2.67668 43.4207 1.63183 42.3894C0.586988 41.3582 0 39.9595 0 38.5012V26.8436C0.00131378 25.6984 0.364897 24.5821 1.04 23.6506L8.52057 13.3128C9.03546 12.6003 9.71524 12.0194 10.5034 11.6183C11.2915 11.2173 12.169 11.0077 13.0557 11.007ZM48.2857 29.3364H3.71429V38.5012C3.71429 38.9873 3.90995 39.4535 4.25823 39.7973C4.60651 40.141 5.07888 40.3341 5.57143 40.3341H46.4286C46.9211 40.3341 47.3935 40.141 47.7418 39.7973C48.0901 39.4535 48.2857 38.9873 48.2857 38.5012V29.3364Z" fill="white"/>
-</svg>
+//         this.submitButton.innerHTML = `
+//             <div class="vote-button-content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.25rem;padding-block:0.25rem;">
+//                 <svg width="52" height="44" viewBox="0 0 52 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+// <path d="M23.712 1.83126C24.2045 0.990296 25.0151 0.376649 25.9657 0.125083C26.9163 -0.126483 27.9292 0.00459937 28.782 0.489543L37.1429 5.2552C37.9959 5.74134 38.6184 6.54203 38.8733 7.48113C39.1283 8.42024 38.9948 9.42083 38.5023 10.2628L33.7814 18.3388H37.1429C37.6354 18.3388 38.1078 18.5319 38.4561 18.8756C38.8043 19.2194 39 19.6856 39 20.1717C39 20.6578 38.8043 21.1241 38.4561 21.4678C38.1078 21.8115 37.6354 22.0047 37.1429 22.0047H14.8571C14.3646 22.0047 13.8922 21.8115 13.5439 21.4678C13.1957 21.1241 13 20.6578 13 20.1717C13 19.6856 13.1957 19.2194 13.5439 18.8756C13.8922 18.5319 14.3646 18.3388 14.8571 18.3388H17.3643C16.7539 17.7726 16.3554 17.0195 16.2333 16.2016C16.1113 15.3837 16.2729 14.5492 16.692 13.8334L23.712 1.83126ZM24.5923 18.3388H29.4914L35.2857 8.42986L26.9286 3.6642L19.9086 15.6663L24.5923 18.3388ZM13.0557 11.007H14.0549L13.4717 12.0004C12.9629 12.8729 12.6546 13.8041 12.5357 14.7462C12.1353 14.8618 11.7859 15.1072 11.544 15.4427L4.13771 25.6705H47.8623L40.456 15.4427C40.3355 15.2753 40.1873 15.1291 40.0177 15.0101L41.7189 12.0958C41.7709 12.0078 41.8204 11.9173 41.8674 11.8245C42.4996 12.2084 43.0477 12.7132 43.4794 13.3092L50.9637 23.647C51.636 24.5818 52 25.6999 52 26.8436V38.5012C52 39.9595 51.413 41.3582 50.3682 42.3894C49.3233 43.4207 47.9062 44 46.4286 44H5.57143C4.09379 44 2.67668 43.4207 1.63183 42.3894C0.586988 41.3582 0 39.9595 0 38.5012V26.8436C0.00131378 25.6984 0.364897 24.5821 1.04 23.6506L8.52057 13.3128C9.03546 12.6003 9.71524 12.0194 10.5034 11.6183C11.2915 11.2173 12.169 11.0077 13.0557 11.007ZM48.2857 29.3364H3.71429V38.5012C3.71429 38.9873 3.90995 39.4535 4.25823 39.7973C4.60651 40.141 5.07888 40.3341 5.57143 40.3341H46.4286C46.9211 40.3341 47.3935 40.141 47.7418 39.7973C48.0901 39.4535 48.2857 38.9873 48.2857 38.5012V29.3364Z" fill="white"/>
+// </svg>
 
+//             <span class="vote-timer-text" style="font-size:0.4rem;font-weight:500;color:currentColor;line-height:1;">?</span>
+//             </div>
+//         `;
+        this.submitButton.innerHTML = `
+            <div class="vote-button-content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.1rem;padding-block:0.1rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-vote"><path d="m9 12 2 2 4-4"/><path d="M5 7c0-1.1.9-2 2-2h10a2 2 0 0 1 2 2v12H5V7Z"/><path d="M22 19H2"/></svg>
             <span class="vote-timer-text" style="font-size:0.4rem;font-weight:500;color:currentColor;line-height:1;">?</span>
             </div>
         `;
@@ -45,7 +51,7 @@ export class ParticipantSubmitButton {
 
     setClickableAppearance() {
         this.submitButton.disabled = false;
-        this.submitButton.style.backgroundColor = '#6D28D9'; // #8B5CF6 #6D28D9 #4F46E5
+        this.submitButton.style.backgroundColor = '#829672';//'#6D28D9'; // #8B5CF6 #6D28D9 #4F46E5
         this.submitButton.style.border = '0px solid #1e40af';
         this.submitButton.style.color = '#ffffff';
         this.submitButton.style.cursor = 'pointer';
@@ -54,8 +60,8 @@ export class ParticipantSubmitButton {
         const svg = this.submitButton.querySelector('svg');
         if (svg) {
             svg.style.display = 'block';
-            svg.style.width = '50%';
-            svg.style.height = '50%';
+            svg.style.width = '100%';
+            svg.style.height = '100%';
         }
 
         if (this.voteTimerText) {
@@ -139,7 +145,7 @@ export class ParticipantSubmitButton {
             if (timeLeft <= 0) {
                 clearInterval(this.countdownInterval);
                 this.countdownInterval = null;
-            } else if (timeLeft <= 10) {
+            } else if (timeLeft <= 5) {
                 this.flashCountdownHeartbeat();
             }
         }, 1000);
@@ -156,8 +162,8 @@ export class ParticipantSubmitButton {
             this.submitButton.style.color = this.countdownFlashOriginalStyles.color || '';
         };
 
-        this.submitButton.style.backgroundColor = '#ef4444';
-        this.submitButton.style.border = '0px solid #dc2626';
+        // this.submitButton.style.backgroundColor = '#ef4444';
+        this.submitButton.style.border = '2px solid #dc2626';
 
         this.countdownFlashTimeout = setTimeout(() => {
             restoreStyles();

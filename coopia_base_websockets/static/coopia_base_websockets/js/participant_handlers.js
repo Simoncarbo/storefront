@@ -128,7 +128,8 @@ export class ParticipantHandler {
 
         const message = document.createElement('div');
         message.textContent = 'Nombre maximum de soumissions atteint.';
-        message.style.fontStyle = 'italic';
+        // message.style.fontStyle = 'italic';
+        message.style.color = '#aaa';
         message.style.display = 'flex';
         message.style.alignItems = 'center';
         message.style.justifyContent = 'center';

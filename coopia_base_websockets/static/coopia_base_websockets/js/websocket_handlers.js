@@ -54,12 +54,12 @@ export async function CoopiaSocketOnMessage(e, participantHandler, ProcessResult
         participantHandler.participantSubmitButton.start_countdown(phase_duration - elapsedSeconds);
 
         if (data.current_phase === 'generation') {
-            ProcessResultDisplay.addPlaceholder("Génération de propositions");
+            ProcessResultDisplay.addPlaceholder("Collecte de messages...");
             participantHandler.resetSubmissions(generation_max_actions);
             participantHandler.showTextInput();
             last_reported_phase = 'generation';
         } else if (data.current_phase === 'selection') {
-            ProcessResultDisplay.addPlaceholder("Sélection d'une proposition");
+            ProcessResultDisplay.addPlaceholder("Tri des messages...");
             participantHandler.resetSubmissions(selection_max_actions);
             last_reported_phase = 'selection';
         }

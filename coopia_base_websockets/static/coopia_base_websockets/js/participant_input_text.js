@@ -10,7 +10,7 @@ export class ParticipantInputText {
         this.input = document.createElement('textarea');
         this.input.className = "flex-1 outline-none bg-transparent resize-none overflow-hidden leading-snug";
         this.input.value = defaultValue;
-        if (this.editable)  this.input.placeholder = "Proposition anonyme";
+        if (this.editable)  this.input.placeholder = "Message anonyme";
         
         this.input.autocomplete = "off";
         this.input.maxLength = 150;
@@ -65,12 +65,13 @@ export class ParticipantInputText {
     }
 
     onsubmission(submissionsDone) {
-        if (this.editable)  this.input.placeholder = `${submissionsDone + 1}ème proposition anonyme`;
+        if (this.editable)  this.input.placeholder = `${submissionsDone + 1}ème message anonyme`;
         this.input.value = '';
         this.input.style.height = 'auto';
         this.input.style.height = this.input.scrollHeight + 'px';
         this.counter.textContent = '0/150';
         this.counter.style.display = 'none';
+        this.input.focus();
     }
 
     remove() {
