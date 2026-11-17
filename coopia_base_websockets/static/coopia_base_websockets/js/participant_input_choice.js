@@ -24,15 +24,30 @@ export class ParticipantInputChoice {
         root.className = 'participant-choice-radio-group';
         root.style.display = 'flex';
         root.style.flexDirection = 'column';
-        root.style.gap = '8px';
+        root.style.gap = '12px';
         root.style.width = '100%';
         root.style.boxSizing = 'border-box';
 
+        const question = document.createElement('p');
+        question.className = 'participant-choice-question';
+        question.textContent = 'Laquelle de ces deux propositions préfères-tu?';
+        question.style.margin = '0';
+        question.style.fontWeight = '400';
+        root.appendChild(question);
+
+        const choices = document.createElement('div');
+        choices.style.display = 'flex';
+        choices.style.flexDirection = 'column';
+        choices.style.gap = '8px';
+        choices.style.width = '100%';
+
         this.items.forEach((item, idx) => {
             const cell = this._createCell(item, idx);
-            root.appendChild(cell);
+            choices.appendChild(cell);
             this._cells.push(cell);
         });
+
+        root.appendChild(choices);
 
         this.container.appendChild(root);
         this._root = root;

@@ -23,7 +23,7 @@ export class ParticipantSubmitButton {
 //         `;
         this.submitButton.innerHTML = `
             <div class="vote-button-content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.1rem;padding-block:0.1rem;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-vote"><path d="m9 12 2 2 4-4"/><path d="M5 7c0-1.1.9-2 2-2h10a2 2 0 0 1 2 2v12H5V7Z"/><path d="M22 19H2"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-horizontal preview-icon"><path d="M3.714 3.048a.498.498 0 0 0-.683.627l2.843 7.627a2 2 0 0 1 0 1.396l-2.842 7.627a.498.498 0 0 0 .682.627l18-8.5a.5.5 0 0 0 0-.904z"/><path d="M6 12h16"/></svg>
             <span class="vote-timer-text" style="font-size:0.4rem;font-weight:500;color:currentColor;line-height:1;">?</span>
             </div>
         `;
@@ -60,8 +60,8 @@ export class ParticipantSubmitButton {
         const svg = this.submitButton.querySelector('svg');
         if (svg) {
             svg.style.display = 'block';
-            svg.style.width = '100%';
-            svg.style.height = '100%';
+            svg.style.width = '80%';
+            svg.style.height = '80%';
         }
 
         if (this.voteTimerText) {
